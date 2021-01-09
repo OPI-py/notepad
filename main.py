@@ -36,23 +36,33 @@ class Notepad:
         self.root.geometry('%dx%d+%d+%d' % (self.Width, self.Height,
             left, top))
         
-        # To make the textarea auto resizable 
+        # Make the textarea auto resizable 
         self.root.grid_rowconfigure(0, weight=1) 
         self.root.grid_columnconfigure(0, weight=1)
         
-        # Add controls (widget) 
+        # Make textarea size as window
         self.text_area.grid(sticky = 'nsew')
         
         # GUI
-        self.menu_bar.add_cascade(labe='File', menu=self.file_menu)
         self.root.config(menu=self.menu_bar)
-        # Create new file
+        self.menu_bar.add_cascade(label='File', menu=self.file_menu)
+        self.menu_bar.add_cascade(label="Edit", menu=self.edit_menu)
+        self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
+        
+        # File menu
         self.file_menu.add_command(label='New', command=self.new_file)
         self.file_menu.add_command(label='Open', command=self.open_file)
         self.file_menu.add_command(label='Save', command=self.save_file)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.quit_app)
-            
+        
+        # Edit menu
+        self.edit_menu.add_command(label="Copy", command=self.copy)
+        self.edit_menu.add_command(label="Paste", command=self.paste)
+        
+        # Help menu
+        self.help_menu.add_command(label="About", command=self.about)
+        
     def new_file(self):
         self.root.title("Untitled - Notepad")
         self.file = None
@@ -87,6 +97,15 @@ class Notepad:
                 
     def quit_app(self):
         self.root.destroy()
+    
+    def copy(self):
+        self.text_area.event_generate("<<Copy>>")
+        
+    def paste(self):
+        self.text_area.event_generate("<<Paste>>")
+        
+    def about(self):
+        showinfo("Notepad", "Simple but Good :)")
     
     def run(self):
         self.root.mainloop()
