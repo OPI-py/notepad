@@ -10,11 +10,12 @@ class Notepad:
     #root.geometry('600x500')
     Width = 600
     Height = 400
-    text_area = Text(root)
+    text_area = Text(root, undo=True)
     menu_bar = Menu(root)
     file_menu = Menu(menu_bar, tearoff=0)
     edit_menu = Menu(menu_bar, tearoff=0)
     help_menu = Menu(menu_bar, tearoff=0)
+    popup_menu = Menu(root, tearoff=0)
     
     scrollbar = Scrollbar(text_area)
     file = None
@@ -63,6 +64,27 @@ class Notepad:
         # Help menu
         self.help_menu.add_command(label="About", command=self.about)
         
+        # Mouse right click popup menu
+        self.popup_menu.add_command(label="Copy", command=self.copy)
+        self.popup_menu.add_command(label="Paste", command=self.paste)
+        self.popup_menu.add_command(label="Cut", command=self.cut)
+        self.popup_menu.add_command(label="Undo", command=self.undo)
+        self.popup_menu.add_command(label="Redo", command=self.redo)
+        
+        self.text_area.bind('<ButtonRelease-3>', self.popup)
+        
+        # Confugure scrollbar
+        self.scrollbar.pack(side=RIGHT, fill=Y)
+        self.scrollbar.config(command=self.text_area.yview,
+            cursor="sb_v_double_arrow")
+        self.text_area.config(yscrollcommand=self.scrollbar.set)
+        
+    def popup(self, event):
+        try:
+            self.popup_menu.tk_popup(event.x_root, event.y_root, 0)
+        finally:
+            self.popup_menu.grab_release()
+    
     def new_file(self):
         self.root.title("Untitled - Notepad")
         self.file = None
@@ -101,9 +123,18 @@ class Notepad:
     def copy(self):
         self.text_area.event_generate("<<Copy>>")
         
+    def cut(self):
+        self.text_area.event_generate("<<Cut>>")
+        
     def paste(self):
         self.text_area.event_generate("<<Paste>>")
         
+    def undo(self):
+        self.text_area.event_generate("<<Undo>>")
+        
+    def redo(self):
+        self.text_area.event_generate("<<Redo>>")
+    
     def about(self):
         showinfo("Notepad", "Simple but Good :)")
     
