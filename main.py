@@ -1,8 +1,8 @@
-from tkinter import Tk, messagebox, filedialog, Text, Menu, Scrollbar, END
+from tkinter import (Tk, messagebox, filedialog, Text, Menu, Scrollbar, END,
+    INSERT)
 from tkinter.messagebox import *
 from tkinter.filedialog import *
 import os
-
 
 class Notepad:
     root = Tk()
@@ -10,6 +10,7 @@ class Notepad:
     #root.geometry('600x500')
     Width = 600
     Height = 400
+    
     text_area = Text(root, undo=True)
     menu_bar = Menu(root)
     file_menu = Menu(menu_bar, tearoff=0)
@@ -79,6 +80,8 @@ class Notepad:
             cursor="sb_v_double_arrow")
         self.text_area.config(yscrollcommand=self.scrollbar.set)
         
+        self.text_area.bind('<Tab>', self.tab)
+        
     def popup(self, event):
         try:
             self.popup_menu.tk_popup(event.x_root, event.y_root, 0)
@@ -140,6 +143,10 @@ class Notepad:
     
     def run(self):
         self.root.mainloop()
+        
+    def tab(self, arg):
+        self.text_area.insert(INSERT, " " * 4)
+        return 'break'
         
 a = Notepad()
 a.run()
