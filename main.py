@@ -1,5 +1,5 @@
 from tkinter import (Tk, messagebox, filedialog, Text, Menu, Scrollbar, END,
-    INSERT)
+    INSERT, ttk)
 from tkinter.messagebox import *
 from tkinter.filedialog import *
 import os
@@ -15,6 +15,7 @@ class Notepad:
     menu_bar = Menu(root)
     file_menu = Menu(menu_bar, tearoff=0)
     edit_menu = Menu(menu_bar, tearoff=0)
+    theme_edit = Menu(edit_menu, tearoff=0)
     help_menu = Menu(menu_bar, tearoff=0)
     popup_menu = Menu(root, tearoff=0)
     
@@ -22,7 +23,7 @@ class Notepad:
     file = None
     
     def __init__(self):
-        self.root.title("Untitled - Notepad") 
+        self.root.title("Untitled - Notepad")
   
         # Center the window 
         screen_width = self.root.winfo_screenwidth() 
@@ -50,6 +51,7 @@ class Notepad:
         self.menu_bar.add_cascade(label='File', menu=self.file_menu)
         self.menu_bar.add_cascade(label="Edit", menu=self.edit_menu)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
+        self.edit_menu.add_cascade(label='Themes', menu=self.theme_edit)
         
         # File menu
         self.file_menu.add_command(label='New', command=self.new_file)
@@ -61,6 +63,9 @@ class Notepad:
         # Edit menu
         self.edit_menu.add_command(label="Copy", command=self.copy)
         self.edit_menu.add_command(label="Paste", command=self.paste)
+        #Nested Theme menu
+        self.theme_edit.add_command(label="Black", command=self.black_theme)
+        self.theme_edit.add_command(label="White", command=self.white_theme)
         
         # Help menu
         self.help_menu.add_command(label="About", command=self.about)
@@ -74,7 +79,7 @@ class Notepad:
         
         self.text_area.bind('<ButtonRelease-3>', self.popup)
         
-        # Confugure scrollbar
+        # Configure scrollbar
         self.scrollbar.pack(side=RIGHT, fill=Y)
         self.scrollbar.config(command=self.text_area.yview,
             cursor="sb_v_double_arrow")
@@ -147,6 +152,14 @@ class Notepad:
     def tab(self, arg):
         self.text_area.insert(INSERT, " " * 4)
         return 'break'
-        
+
+    def black_theme(self):
+        self.text_area.config(bg='black', fg='white',
+            insertbackground='white')
+    
+    def white_theme(self):
+        self.text_area.config(bg='white', fg='black',
+            insertbackground='black')
+    
 a = Notepad()
 a.run()
