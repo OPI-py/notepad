@@ -1,5 +1,5 @@
 from tkinter import (Tk, messagebox, filedialog, Text, Menu, Scrollbar, END,
-    INSERT, ttk)
+    INSERT, ttk, Canvas, IntVar)
 from tkinter.messagebox import *
 from tkinter.filedialog import *
 import os
@@ -8,8 +8,8 @@ class Notepad:
     root = Tk()
     
     #root.geometry('600x500')
-    Width = 600
-    Height = 400
+    Width = 700
+    Height = 550
     
     text_area = Text(root, undo=True)
     menu_bar = Menu(root)
@@ -22,51 +22,51 @@ class Notepad:
     scrollbar = Scrollbar(text_area)
     file = None
     
+    variable_marker = IntVar()
+    
+    canvas = Canvas(text_area, width=1, height=Height,
+            highlightthickness=0, bg='lightgrey')
+            
     def __init__(self):
         self.root.title("Untitled - Notepad")
   
-        # Center the window 
+        # Center the window
         screen_width = self.root.winfo_screenwidth() 
         screen_height = self.root.winfo_screenheight() 
-      
-        # For left-alling 
+        # For left-alling
         left = (screen_width / 2) - (self.Width / 2)  
-          
-        # For right-allign 
+        # For right-allign
         top = (screen_height / 2) - (self.Height /2)  
-          
-        # For top and bottom 
+        # For top and bottom
         self.root.geometry('%dx%d+%d+%d' % (self.Width, self.Height,
             left, top))
-        
-        # Make the textarea auto resizable 
+        # Make the textarea auto resizable
         self.root.grid_rowconfigure(0, weight=1) 
         self.root.grid_columnconfigure(0, weight=1)
-        
         # Make textarea size as window
         self.text_area.grid(sticky = 'nsew')
         
-        # GUI
+        ## GUI
         self.root.config(menu=self.menu_bar)
         self.menu_bar.add_cascade(label='File', menu=self.file_menu)
         self.menu_bar.add_cascade(label="Edit", menu=self.edit_menu)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
-        self.edit_menu.add_cascade(label='Themes', menu=self.theme_edit)
-        
         # File menu
         self.file_menu.add_command(label='New', command=self.new_file)
         self.file_menu.add_command(label='Open', command=self.open_file)
         self.file_menu.add_command(label='Save', command=self.save_file)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.quit_app)
-        
         # Edit menu
         self.edit_menu.add_command(label="Copy", command=self.copy)
         self.edit_menu.add_command(label="Paste", command=self.paste)
+        self.edit_menu.add_checkbutton(label='Vertical marker',
+            onvalue=1, offvalue=0, variable=self.variable_marker,
+            command=self.vertical_line)
         #Nested Theme menu
+        self.edit_menu.add_cascade(label='Themes', menu=self.theme_edit)
         self.theme_edit.add_command(label="Black", command=self.black_theme)
         self.theme_edit.add_command(label="White", command=self.white_theme)
-        
         # Help menu
         self.help_menu.add_command(label="About", command=self.about)
         
@@ -76,7 +76,6 @@ class Notepad:
         self.popup_menu.add_command(label="Cut", command=self.cut)
         self.popup_menu.add_command(label="Undo", command=self.undo)
         self.popup_menu.add_command(label="Redo", command=self.redo)
-        
         self.text_area.bind('<ButtonRelease-3>', self.popup)
         
         # Configure scrollbar
@@ -160,6 +159,14 @@ class Notepad:
     def white_theme(self):
         self.text_area.config(bg='white', fg='black',
             insertbackground='black')
+            
+    def vertical_line(self):
+        if self.variable_marker.get() == 1:
+            self.canvas.place(x=640)
+        elif self.variable_marker.get() == 0:
+            self.canvas.place_forget()  # Unmap widget
+        else:
+            return "Error"
     
 a = Notepad()
 a.run()
