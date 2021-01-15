@@ -23,7 +23,6 @@ class Notepad:
     file = None
     
     variable_marker = IntVar()
-    status_bar_variable = StringVar()
     
     canvas = Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightgrey')
