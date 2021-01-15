@@ -71,7 +71,6 @@ class Notepad:
         self.theme_edit.add_command(label="White", command=self.white_theme)
         # Help menu
         self.help_menu.add_command(label="About", command=self.about)
-        self.help_menu.add_command(label="Characters", command=self.char_count)
         
         # Mouse right click popup menu
         self.popup_menu.add_command(label="Copy", command=self.copy)
