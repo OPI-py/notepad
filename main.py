@@ -1,5 +1,5 @@
 from tkinter import (Tk, messagebox, filedialog, Text, Menu, Scrollbar, END,
-    INSERT, ttk, Canvas, IntVar)
+    INSERT, ttk, Canvas, IntVar, Label)
 from tkinter.messagebox import *
 from tkinter.filedialog import *
 import os
@@ -23,10 +23,13 @@ class Notepad:
     file = None
     
     variable_marker = IntVar()
+    status_bar_variable = StringVar()
     
     canvas = Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightgrey')
             
+    statusbar = Label(root, text="Characters: 0", relief=FLAT, anchor=E)
+    
     def __init__(self):
         self.root.title("Untitled - Notepad")
   
@@ -69,6 +72,7 @@ class Notepad:
         self.theme_edit.add_command(label="White", command=self.white_theme)
         # Help menu
         self.help_menu.add_command(label="About", command=self.about)
+        self.help_menu.add_command(label="Characters", command=self.char_count)
         
         # Mouse right click popup menu
         self.popup_menu.add_command(label="Copy", command=self.copy)
@@ -85,6 +89,9 @@ class Notepad:
         self.text_area.config(yscrollcommand=self.scrollbar.set)
         
         self.text_area.bind('<Tab>', self.tab)
+        # Statusbar
+        self.statusbar.grid(sticky='wes')
+        self.text_area.bind('<Key>', self.char_count)
         
     def popup(self, event):
         try:
@@ -167,6 +174,12 @@ class Notepad:
             self.canvas.place_forget()  # Unmap widget
         else:
             return "Error"
+        
+    def char_count(self, event):
+        characters = len(self.text_area.get(1.0, 'end'))
+        self.statusbar.config(text=f"Characters: {characters}")
+        print(characters)
+
     
 a = Notepad()
 a.run()
