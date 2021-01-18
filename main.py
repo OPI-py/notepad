@@ -23,6 +23,7 @@ class Notepad:
     file = None
     
     variable_marker = IntVar()
+    status_bar_variable = StringVar()
     
     canvas = Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightgrey')
@@ -164,7 +165,7 @@ class Notepad:
     def white_theme(self):
         self.text_area.config(bg='white', fg='black',
             insertbackground='black')
-            
+       
     def vertical_line(self):
         if self.variable_marker.get() == 1:
             self.canvas.place(x=640)
@@ -174,9 +175,16 @@ class Notepad:
             return "Error"
         
     def char_count(self, event):
-        characters = len(self.text_area.get(1.0, 'end'))
-        self.statusbar.config(text=f"Characters: {characters}")
-        print(characters)
+        if event.char == event.keysym or len(repr(event.char)) == 3:
+            characters = len(self.text_area.get(1.0, 'end'))
+            self.statusbar.config(text=f"Characters: {characters}")
+            print(characters)
+        elif event.keysym_num == 65288:
+            characters = len(self.text_area.get(1.0, 'end-2c'))
+            self.statusbar.config(text=f"Characters: {characters}")
+            print(characters)
+        else:
+            pass
 
     
 a = Notepad()
