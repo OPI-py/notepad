@@ -86,7 +86,7 @@ class Notepad:
         self.popup_menu.add_command(label="Redo", accelerator='Ctrl+R',
             command=self.redo)
         self.text_area.bind('<ButtonRelease-3>', self.popup)
-        self.text_area.bind('<Control-r>', self.redo_button)
+        self.text_area.bind('<Control-r>', self.redo)
         
         # Configure scrollbar
         self.scrollbar.pack(side=RIGHT, fill=Y)
@@ -152,10 +152,7 @@ class Notepad:
     def undo(self):
         self.text_area.event_generate("<<Undo>>")
         
-    def redo(self):
-        self.text_area.event_generate("<<Redo>>")
-        
-    def redo_button(self, event):
+    def redo(self, event=None):
         self.text_area.event_generate("<<Redo>>")
     
     def about(self):
