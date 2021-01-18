@@ -178,7 +178,7 @@ class Notepad:
             characters = len(self.text_area.get(1.0, 'end'))
             self.statusbar.config(text=f"Characters: {characters}")
             print(characters)
-        elif event.keysym_num == 65288:
+        elif event.keysym == 'BackSpace':
             characters = len(self.text_area.get(1.0, 'end-2c'))
             self.statusbar.config(text=f"Characters: {characters}")
             print(characters)
