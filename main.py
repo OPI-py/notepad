@@ -60,25 +60,33 @@ class Notepad:
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.quit_app)
         # Edit menu
-        self.edit_menu.add_command(label="Copy", command=self.copy)
-        self.edit_menu.add_command(label="Paste", command=self.paste)
+        self.edit_menu.add_command(label="Copy", accelerator='Ctrl+C',
+            command=self.copy)
+        self.edit_menu.add_command(label="Paste", accelerator='Ctrl+V',
+            command=self.paste)
         self.edit_menu.add_checkbutton(label='Vertical marker',
             onvalue=1, offvalue=0, variable=self.variable_marker,
             command=self.vertical_line)
         #Nested Theme menu
-        self.edit_menu.add_cascade(label='Themes', menu=self.theme_edit)
+        self.edit_menu.add_cascade(label='Color theme', menu=self.theme_edit)
         self.theme_edit.add_command(label="Black", command=self.black_theme)
         self.theme_edit.add_command(label="White", command=self.white_theme)
         # Help menu
         self.help_menu.add_command(label="About", command=self.about)
         
         # Mouse right click popup menu
-        self.popup_menu.add_command(label="Copy", command=self.copy)
-        self.popup_menu.add_command(label="Paste", command=self.paste)
-        self.popup_menu.add_command(label="Cut", command=self.cut)
-        self.popup_menu.add_command(label="Undo", command=self.undo)
-        self.popup_menu.add_command(label="Redo", command=self.redo)
+        self.popup_menu.add_command(label="Copy", accelerator='Ctrl+C',
+            command=self.copy)
+        self.popup_menu.add_command(label="Paste", accelerator='Ctrl+V',
+            command=self.paste)
+        self.popup_menu.add_command(label="Cut", accelerator='Ctrl+X',
+            command=self.cut)
+        self.popup_menu.add_command(label="Undo", accelerator='Ctrl+Z',
+            command=self.undo)
+        self.popup_menu.add_command(label="Redo", accelerator='Ctrl+R',
+            command=self.redo)
         self.text_area.bind('<ButtonRelease-3>', self.popup)
+        self.text_area.bind('<Control-r>', self.redo_button)
         
         # Configure scrollbar
         self.scrollbar.pack(side=RIGHT, fill=Y)
@@ -146,6 +154,9 @@ class Notepad:
         
     def redo(self):
         self.text_area.event_generate("<<Redo>>")
+        
+    def redo_button(self, event):
+        self.text_area.event_generate("<<Redo>>")
     
     def about(self):
         showinfo("Notepad", "Simple but Good :)")
@@ -177,11 +188,9 @@ class Notepad:
         if event.char == event.keysym or len(repr(event.char)) == 3:
             characters = len(self.text_area.get(1.0, 'end'))
             self.statusbar.config(text=f"Characters: {characters}")
-            print(characters)
         elif event.keysym == 'BackSpace':
             characters = len(self.text_area.get(1.0, 'end-2c'))
             self.statusbar.config(text=f"Characters: {characters}")
-            print(characters)
         else:
             pass
 
