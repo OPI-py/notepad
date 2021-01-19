@@ -64,6 +64,8 @@ class Notepad:
             command=self.copy)
         self.edit_menu.add_command(label="Paste", accelerator='Ctrl+V',
             command=self.paste)
+        self.edit_menu.add_command(label="Select all", accelerator='Ctrl+A',
+            command=self.select_all)
         self.edit_menu.add_checkbutton(label='Vertical marker',
             onvalue=1, offvalue=0, variable=self.variable_marker,
             command=self.vertical_line)
@@ -85,8 +87,10 @@ class Notepad:
             command=self.undo)
         self.popup_menu.add_command(label="Redo", accelerator='Ctrl+R',
             command=self.redo)
+        # Button bind
         self.text_area.bind('<ButtonRelease-3>', self.popup)
         self.text_area.bind('<Control-r>', self.redo)
+        self.text_area.bind('<Control-a>', self.select_all)
         
         # Configure scrollbar
         self.scrollbar.pack(side=RIGHT, fill=Y)
@@ -154,6 +158,9 @@ class Notepad:
         
     def redo(self, event=None):
         self.text_area.event_generate("<<Redo>>")
+        
+    def select_all(self, event=None):
+        self.text_area.event_generate("<<SelectAll>>")
     
     def about(self):
         showinfo("Notepad", "Simple but Good :)")
