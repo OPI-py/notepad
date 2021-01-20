@@ -110,6 +110,8 @@ class Notepad:
         self.text_area.bind('<Control-Alt-s>', self.save_file_as)
         self.text_area.bind('<Control-n>', self.new_file)
         self.text_area.bind('<Control-o>', self.open_file)
+        # Vertical line auto resize
+        self.text_area.bind('<Configure>', self.vertical_line)
         
     def popup(self, event):
         try:
@@ -186,9 +188,9 @@ class Notepad:
         self.text_area.config(bg='white', fg='black',
             insertbackground='black')
        
-    def vertical_line(self):
+    def vertical_line(self, event=None):
         if self.variable_marker.get() == 1:
-            self.canvas.place(x=640)
+            self.canvas.place(x=640, height=self.root.winfo_height())
         elif self.variable_marker.get() == 0:
             self.canvas.place_forget()  # Unmap widget
         else:
