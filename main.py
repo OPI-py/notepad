@@ -54,9 +54,14 @@ class Notepad:
         self.menu_bar.add_cascade(label="Edit", menu=self.edit_menu)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
         # File menu
-        self.file_menu.add_command(label='New', command=self.new_file)
-        self.file_menu.add_command(label='Open', command=self.open_file)
-        self.file_menu.add_command(label='Save', command=self.save_file)
+        self.file_menu.add_command(label='New', accelerator='Ctrl+N', 
+            command=self.new_file)
+        self.file_menu.add_command(label='Open', accelerator='Ctrl+O',
+            command=self.open_file)
+        self.file_menu.add_command(label='Save', accelerator='Ctrl+S',
+            command=self.save_file)
+        self.file_menu.add_command(label='Save as ...',
+            accelerator='Ctrl+Alt+S', command=self.save_file_as)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.quit_app)
         # Edit menu
@@ -90,7 +95,12 @@ class Notepad:
         # Button bind
         self.text_area.bind('<ButtonRelease-3>', self.popup)
         self.text_area.bind('<Control-r>', self.redo)
+        self.text_area.bind('<Control-z>', self.undo)
         self.text_area.bind('<Control-a>', self.select_all)
+        self.text_area.bind('<Control-s>', self.save_file)
+        self.text_area.bind('<Control-Alt-s>', self.save_file_as)
+        self.text_area.bind('<Control-n>', self.new_file)
+        self.text_area.bind('<Control-o>', self.open_file)
         
         # Configure scrollbar
         self.scrollbar.pack(side=RIGHT, fill=Y)
@@ -101,7 +111,8 @@ class Notepad:
         self.text_area.bind('<Tab>', self.tab)
         # Statusbar
         self.statusbar.grid(sticky='wes')
-        self.text_area.bind('<Key>', self.char_count)
+        # self.text_area.bind('<Key>', self.char_count)
+        self.text_area.bind('<<Modified>>', self.changed)
         
     def popup(self, event):
         try:
@@ -109,51 +120,51 @@ class Notepad:
         finally:
             self.popup_menu.grab_release()
     
-    def new_file(self):
+    def new_file(self, event=None):
         self.root.title("Untitled - Notepad")
         self.file = None
-        self.text_area.delete(1.0, END)
+        self.text_area.delete(0.0, END)
+        # self.statusbar_count_add()
         
-    def open_file(self):
+    def open_file(self, event=None):
         self.file = askopenfilename(defaultextension=".txt",
             filetypes=[('All Files', '*.*'), ('Text Documents', '*.txt')])
         if self.file == "":
             self.file = None
         else:
             self.root.title(os.path.basename(self.file) + " - Notepad")
-            self.text_area.delete(1.0, END)
-            
+            self.text_area.delete(0.0, END)
             file = open(self.file, 'r')
-            self.text_area.insert(1.0, file.read())
+            self.text_area.insert(0.0, file.read())
             file.close()
+        # self.statusbar_count_add()
 
-    def save_file(self):
-        if self.file == None:
-            self.file = asksaveasfilename(initialfile='Untitled.txt', 
-                defaultextension='.txt', filetypes=[('All Files', '*.*'),
-                ('Text Documents', '*.txt')])
-            if self.file == "":
-                self.file = None
-            else:
-                file = open(self.file, 'w')
-                file.write(self.text_area.get(1.0, END))
-                file.close()
-                
-                self.root.title(os.path.basename(self.file), + " - Notepad")
-                
+    def save_file_as(self, event=None):
+        asksaveasfilename(initialfile='Untitled.txt', 
+            defaultextension='.txt', filetypes=[('All Files', '*.*'),
+            ('Text Documents', '*.txt')])
+            
+    def save_file(self, event=None):
+        if self.file is not None and self.file != "":
+            with open(self.file, 'w') as file:
+                    file.write(self.text_area.get(1.0, END))
+            self.root.title(os.path.basename(self.file))
+        else:
+            self.save_file_as()
+                            
     def quit_app(self):
         self.root.destroy()
     
     def copy(self):
         self.text_area.event_generate("<<Copy>>")
         
-    def cut(self):
+    def cut(self, event=None):
         self.text_area.event_generate("<<Cut>>")
         
     def paste(self):
         self.text_area.event_generate("<<Paste>>")
         
-    def undo(self):
+    def undo(self, event=None):
         self.text_area.event_generate("<<Undo>>")
         
     def redo(self, event=None):
@@ -188,16 +199,24 @@ class Notepad:
         else:
             return "Error"
         
-    def char_count(self, event):
-        if event.char == event.keysym or len(repr(event.char)) == 3:
-            characters = len(self.text_area.get(1.0, 'end'))
-            self.statusbar.config(text=f"Characters: {characters}")
-        elif event.keysym == 'BackSpace':
-            characters = len(self.text_area.get(1.0, 'end-2c'))
-            self.statusbar.config(text=f"Characters: {characters}")
-        else:
-            pass
+    # def char_count(self, event):
+        # if event.char == event.keysym or len(repr(event.char)) == 3:
+            # characters = len(self.text_area.get(1.0, 'end'))
+            # self.statusbar.config(text=f"Characters: {characters}")
+        # elif event.keysym == 'BackSpace':
+            # characters = len(self.text_area.get(1.0, 'end-2c'))
+            # self.statusbar.config(text=f"Characters: {characters}")
+        # else:
+            # pass
+            
+    def statusbar_count_add(self):
+        self.statusbar.config(text="Characters: " + 
+            str(len(self.text_area.get(1.0, 'end-1c'))))
+            
+    def changed(self, event=None):
+        if self.text_area.edit_modified():
+            self.statusbar_count_add()
+        self.text_area.edit_modified(False)
 
-    
 a = Notepad()
 a.run()
