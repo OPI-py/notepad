@@ -150,6 +150,7 @@ class Notepad:
             self.save_file_as()
                             
     def quit_app(self):
+        self.save_file()
         self.root.destroy()
     
     def copy(self):
