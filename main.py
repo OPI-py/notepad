@@ -6,8 +6,6 @@ import os
 
 class Notepad:
     root = Tk()
-    
-    #root.geometry('600x500')
     Width = 700
     Height = 550
     
@@ -93,6 +91,7 @@ class Notepad:
         self.popup_menu.add_command(label="Redo", accelerator='Ctrl+R',
             command=self.redo)
         # Button bind
+        self.text_area.bind('<<Modified>>', self.text_area_modified)
         self.text_area.bind('<ButtonRelease-3>', self.popup)
         self.text_area.bind('<Control-r>', self.redo)
         self.text_area.bind('<Control-z>', self.undo)
@@ -111,8 +110,6 @@ class Notepad:
         self.text_area.bind('<Tab>', self.tab)
         # Statusbar
         self.statusbar.grid(sticky='wes')
-        # self.text_area.bind('<Key>', self.char_count)
-        self.text_area.bind('<<Modified>>', self.changed)
         
     def popup(self, event):
         try:
@@ -124,7 +121,6 @@ class Notepad:
         self.root.title("Untitled - Notepad")
         self.file = None
         self.text_area.delete(0.0, END)
-        # self.statusbar_count_add()
         
     def open_file(self, event=None):
         self.file = askopenfilename(defaultextension=".txt",
@@ -137,7 +133,6 @@ class Notepad:
             file = open(self.file, 'r')
             self.text_area.insert(0.0, file.read())
             file.close()
-        # self.statusbar_count_add()
 
     def save_file_as(self, event=None):
         asksaveasfilename(initialfile='Untitled.txt', 
@@ -198,24 +193,11 @@ class Notepad:
             self.canvas.place_forget()  # Unmap widget
         else:
             return "Error"
-        
-    # def char_count(self, event):
-        # if event.char == event.keysym or len(repr(event.char)) == 3:
-            # characters = len(self.text_area.get(1.0, 'end'))
-            # self.statusbar.config(text=f"Characters: {characters}")
-        # elif event.keysym == 'BackSpace':
-            # characters = len(self.text_area.get(1.0, 'end-2c'))
-            # self.statusbar.config(text=f"Characters: {characters}")
-        # else:
-            # pass
             
-    def statusbar_count_add(self):
-        self.statusbar.config(text="Characters: " + 
-            str(len(self.text_area.get(1.0, 'end-1c'))))
-            
-    def changed(self, event=None):
+    def text_area_modified(self, event=None):
         if self.text_area.edit_modified():
-            self.statusbar_count_add()
+            self.statusbar.config(text="Characters: " + 
+                str(len(self.text_area.get(1.0, 'end-1c'))))
         self.text_area.edit_modified(False)
 
 a = Notepad()
