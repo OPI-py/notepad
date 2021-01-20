@@ -17,7 +17,7 @@ class Notepad:
     help_menu = Menu(menu_bar, tearoff=0)
     popup_menu = Menu(root, tearoff=0)
     
-    scrollbar = Scrollbar(text_area)
+    scrollbar = Scrollbar(root)
     file = None
     
     variable_marker = IntVar()
@@ -44,9 +44,18 @@ class Notepad:
         self.root.grid_rowconfigure(0, weight=1) 
         self.root.grid_columnconfigure(0, weight=1)
         # Make textarea size as window
-        self.text_area.grid(sticky = 'nsew')
+        self.text_area.grid(column=0, row=0, sticky='nsew')
         
-        ## GUI
+        # Configure scrollbar
+        self.scrollbar.grid(column=1, row=0, sticky='ns')
+        self.scrollbar.config(command=self.text_area.yview,
+            cursor="sb_v_double_arrow")
+        self.text_area.config(yscrollcommand=self.scrollbar.set)
+        
+        # Statusbar
+        self.statusbar.grid(sticky='wes')
+        
+        ## Menu GUI
         self.root.config(menu=self.menu_bar)
         self.menu_bar.add_cascade(label='File', menu=self.file_menu)
         self.menu_bar.add_cascade(label="Edit", menu=self.edit_menu)
@@ -92,6 +101,7 @@ class Notepad:
             command=self.redo)
         # Button bind
         self.text_area.bind('<<Modified>>', self.text_area_modified)
+        self.text_area.bind('<Tab>', self.tab)
         self.text_area.bind('<ButtonRelease-3>', self.popup)
         self.text_area.bind('<Control-r>', self.redo)
         self.text_area.bind('<Control-z>', self.undo)
@@ -100,16 +110,6 @@ class Notepad:
         self.text_area.bind('<Control-Alt-s>', self.save_file_as)
         self.text_area.bind('<Control-n>', self.new_file)
         self.text_area.bind('<Control-o>', self.open_file)
-        
-        # Configure scrollbar
-        self.scrollbar.pack(side=RIGHT, fill=Y)
-        self.scrollbar.config(command=self.text_area.yview,
-            cursor="sb_v_double_arrow")
-        self.text_area.config(yscrollcommand=self.scrollbar.set)
-        
-        self.text_area.bind('<Tab>', self.tab)
-        # Statusbar
-        self.statusbar.grid(sticky='wes')
         
     def popup(self, event):
         try:
