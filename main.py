@@ -1,5 +1,5 @@
 from tkinter import (Tk, messagebox, filedialog, Text, Menu, Scrollbar, END,
-    INSERT, ttk, Canvas, IntVar, Label)
+    INSERT, ttk, Canvas, IntVar, Label, BooleanVar)
 from tkinter.messagebox import *
 from tkinter.filedialog import *
 import os
@@ -20,16 +20,16 @@ class Notepad:
     scrollbar = Scrollbar(root)
     file = None
     
-    variable_marker = IntVar()
+    variable_marker = BooleanVar()
+    variable_theme = IntVar()
     
     canvas = Canvas(text_area, width=1, height=Height,
-            highlightthickness=0, bg='lightgrey')
+            highlightthickness=0, bg='lightsteelblue3')
             
     statusbar = Label(root, text="Characters: 0", relief=FLAT, anchor=E)
     
     def __init__(self):
         self.root.title("Untitled - Notepad")
-  
         # Center the window
         screen_width = self.root.winfo_screenwidth() 
         screen_height = self.root.winfo_screenheight() 
@@ -83,8 +83,39 @@ class Notepad:
             command=self.vertical_line)
         #Nested Theme menu
         self.edit_menu.add_cascade(label='Color theme', menu=self.theme_edit)
-        self.theme_edit.add_command(label="Black", command=self.black_theme)
-        self.theme_edit.add_command(label="White", command=self.white_theme)
+        self.theme_edit.add_checkbutton(label="Black", onvalue=1, offvalue=0,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Light Grey", onvalue=2,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Pale Turquoise", onvalue=3,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Snow", onvalue=4,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Azure", onvalue=5,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Navajo White", onvalue=6,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Lavender", onvalue=7,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Misty Rose", onvalue=8,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Dark Slate Gray", onvalue=9,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Dim Gray", onvalue=10,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Khaki", onvalue=11,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Deep Sky Blue", onvalue=12,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Aquamarine", onvalue=13,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Blue", onvalue=14,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Midnight Blue", onvalue=15,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Cyber Dark", onvalue=16,
+            variable=self.variable_theme, command=self.theme_activate)
+        
         # Help menu
         self.help_menu.add_command(label="About", command=self.about)
         
@@ -180,14 +211,61 @@ class Notepad:
     def tab(self, arg):
         self.text_area.insert(INSERT, " " * 4)
         return 'break'
-
-    def black_theme(self):
-        self.text_area.config(bg='black', fg='white',
-            insertbackground='white')
-    
-    def white_theme(self):
-        self.text_area.config(bg='white', fg='black',
-            insertbackground='black')
+       
+    def theme_activate(self):
+        if self.variable_theme.get() == 0:
+            self.text_area.config(bg='SystemWindow', fg='SystemWindowText',
+                insertbackground='SystemWindowText')
+        elif self.variable_theme.get() == 1:
+            self.text_area.config(bg='black', fg='white',
+                insertbackground='white')
+        elif self.variable_theme.get() == 2:
+            self.text_area.config(bg='light grey', fg='black',
+                insertbackground='white')
+        elif self.variable_theme.get() == 3:
+            self.text_area.config(bg='paleturquoise1', fg='black',
+                insertbackground='black')
+        elif self.variable_theme.get() == 4:
+            self.text_area.config(bg='snow', fg='black',
+                insertbackground='black')
+        elif self.variable_theme.get() == 5:
+            self.text_area.config(bg='azure', fg='black',
+                insertbackground='black')
+        elif self.variable_theme.get() == 6:
+            self.text_area.config(bg='navajo white', fg='black',
+                insertbackground='black')
+        elif self.variable_theme.get() == 7:
+            self.text_area.config(bg='lavender', fg='black',
+                insertbackground='black')
+        elif self.variable_theme.get() == 8:
+            self.text_area.config(bg='misty rose', fg='black',
+                insertbackground='black')
+        elif self.variable_theme.get() == 9:
+            self.text_area.config(bg='dark slate gray', fg='linen',
+                insertbackground='white')
+        elif self.variable_theme.get() == 10:
+            self.text_area.config(bg='dim gray', fg='ghost white',
+                insertbackground='white')
+        elif self.variable_theme.get() == 11:
+            self.text_area.config(bg='khaki', fg='deepskyblue4',
+                insertbackground='white')
+        elif self.variable_theme.get() == 12:
+            self.text_area.config(bg='deepskyblue4', fg='light cyan',
+                insertbackground='white')
+        elif self.variable_theme.get() == 13:
+            self.text_area.config(bg='aquamarine', fg='red4',
+                insertbackground='black')
+        elif self.variable_theme.get() == 14:
+            self.text_area.config(bg='blue4', fg='white',
+                insertbackground='white')
+        elif self.variable_theme.get() == 15:
+            self.text_area.config(bg='midnight blue', fg='white',
+                insertbackground='white')
+        elif self.variable_theme.get() == 16:
+            self.text_area.config(bg='#1f1f2e', fg='cyan',
+                insertbackground='white')
+        else:
+            return 'Error'
        
     def vertical_line(self, event=None):
         if self.variable_marker.get() == 1:
