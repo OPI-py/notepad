@@ -27,6 +27,10 @@ class Notepad:
             highlightthickness=0, bg='lightsteelblue3')
             
     statusbar = Label(root, text="Characters: 0", relief=FLAT, anchor=E)
+    line_count_bar = Text(root, relief=FLAT, width=3, state=DISABLED,
+        bg='gray94')
+    
+    tab_width = 4
     
     def __init__(self):
         self.root.title("Untitled - Notepad")
@@ -42,18 +46,24 @@ class Notepad:
             left, top))
         # Make the textarea auto resizable
         self.root.grid_rowconfigure(0, weight=1) 
-        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_columnconfigure(1, weight=1)
         # Make textarea size as window
-        self.text_area.grid(column=0, row=0, sticky='nsew')
+        self.text_area.grid(column=1, row=0, sticky='nsew')
         
         # Configure scrollbar
-        self.scrollbar.grid(column=1, row=0, sticky='ns')
-        self.scrollbar.config(command=self.text_area.yview,
+        self.scrollbar.grid(column=2, row=0, sticky='ns')
+        self.scrollbar.config(command=self.multiple_yview,
             cursor="sb_v_double_arrow")
         self.text_area.config(yscrollcommand=self.scrollbar.set)
         
         # Statusbar
-        self.statusbar.grid(sticky='wes')
+        self.statusbar.grid(column=0, columnspan=3, row=1, sticky='wes')
+        # Line Count Bar
+        self.line_count_bar.grid(column=0, row=0, sticky='ns')
+        self.text_area.bind('<Return>', self.line_count)
+        # Text boxes mousewheel bind
+        self.text_area.bind('<MouseWheel>', self.mouse_wheel)
+        self.line_count_bar.bind('<MouseWheel>', self.mouse_wheel)
         
         ## Menu GUI
         self.root.config(menu=self.menu_bar)
@@ -81,7 +91,7 @@ class Notepad:
         self.edit_menu.add_checkbutton(label='Vertical marker',
             onvalue=1, offvalue=0, variable=self.variable_marker,
             command=self.vertical_line)
-        #Nested Theme menu
+        # Nested Theme menu
         self.edit_menu.add_cascade(label='Color theme', menu=self.theme_edit)
         self.theme_edit.add_checkbutton(label="Black", onvalue=1, offvalue=0,
             variable=self.variable_theme, command=self.theme_activate)
@@ -118,6 +128,7 @@ class Notepad:
         
         # Help menu
         self.help_menu.add_command(label="About", command=self.about)
+        self.help_menu.add_command(label='Check', command=self.line_count)
         
         # Mouse right click popup menu
         self.popup_menu.add_command(label="Copy", accelerator='Ctrl+C',
@@ -133,6 +144,7 @@ class Notepad:
         # Button bind
         self.text_area.bind('<<Modified>>', self.text_area_modified)
         self.text_area.bind('<Tab>', self.tab)
+        self.text_area.bind('<Shift-Tab>', self.shift_tab)
         self.text_area.bind('<ButtonRelease-3>', self.popup)
         self.text_area.bind('<Control-r>', self.redo)
         self.text_area.bind('<Control-z>', self.undo)
@@ -209,8 +221,15 @@ class Notepad:
         self.root.mainloop()
         
     def tab(self, arg):
-        self.text_area.insert(INSERT, " " * 4)
+        self.text_area.insert(INSERT, " " * self.tab_width)
         return 'break'
+        
+    def shift_tab(self, event=None):
+        previous_characters = self.text_area.get(
+            "insert -%dc" % self.tab_width, INSERT)
+        if previous_characters == " " * self.tab_width:
+            self.text_area.delete("insert-%dc" % self.tab_width, INSERT)
+            return "break"
        
     def theme_activate(self):
         if self.variable_theme.get() == 0:
@@ -280,6 +299,24 @@ class Notepad:
             self.statusbar.config(text="Characters: " + 
                 str(len(self.text_area.get(1.0, 'end-1c'))))
         self.text_area.edit_modified(False)
-
+    
+    def line_count(self, event=None):
+        self.line_count_bar.config(state=NORMAL)
+        self.line_count_bar.tag_configure('line', justify='right')
+        self.line_count_bar.tag_add('line', 1.0, END)
+        self.line_count_bar.insert(END,
+            self.text_area.count('1.0', 'end', 'displaylines'))
+        self.line_count_bar.insert(END, '\n')
+        self.line_count_bar.config(state=DISABLED)
+        
+    def multiple_yview(self, *args):
+        self.text_area.yview(*args)
+        self.line_count_bar.yview(*args)
+    
+    def mouse_wheel(self, event=None):
+        self.text_area.yview("scroll", event.delta,"units")
+        self.line_count_bar.yview("scroll",event.delta,"units")
+        return 'break'
+    
 a = Notepad()
 a.run()
