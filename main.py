@@ -1,5 +1,5 @@
 from tkinter import (Tk, messagebox, filedialog, Text, Menu, Scrollbar, END,
-    INSERT, ttk, Canvas, IntVar, Label, BooleanVar)
+    INSERT, ttk, Canvas, IntVar, Label)
 from tkinter.messagebox import *
 from tkinter.filedialog import *
 import os
@@ -20,11 +20,10 @@ class Notepad:
     scrollbar = Scrollbar(root)
     file = None
     
-    variable_marker = BooleanVar()
-    variable_theme = IntVar()
+    variable_marker = IntVar()
     
     canvas = Canvas(text_area, width=1, height=Height,
-            highlightthickness=0, bg='lightsteelblue3')
+            highlightthickness=0, bg='lightgrey')
             
     statusbar = Label(root, text="Characters: 0", relief=FLAT, anchor=E)
     line_count_bar = Text(root, relief=FLAT, width=3, state=DISABLED,
@@ -34,6 +33,7 @@ class Notepad:
     
     def __init__(self):
         self.root.title("Untitled - Notepad")
+  
         # Center the window
         screen_width = self.root.winfo_screenwidth() 
         screen_height = self.root.winfo_screenheight() 
@@ -94,39 +94,8 @@ class Notepad:
             command=self.vertical_line)
         # Nested Theme menu
         self.edit_menu.add_cascade(label='Color theme', menu=self.theme_edit)
-        self.theme_edit.add_checkbutton(label="Black", onvalue=1, offvalue=0,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Light Grey", onvalue=2,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Pale Turquoise", onvalue=3,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Snow", onvalue=4,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Azure", onvalue=5,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Navajo White", onvalue=6,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Lavender", onvalue=7,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Misty Rose", onvalue=8,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Dark Slate Gray", onvalue=9,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Dim Gray", onvalue=10,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Khaki", onvalue=11,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Deep Sky Blue", onvalue=12,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Aquamarine", onvalue=13,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Blue", onvalue=14,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Midnight Blue", onvalue=15,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Cyber Dark", onvalue=16,
-            variable=self.variable_theme, command=self.theme_activate)
-        
+        self.theme_edit.add_command(label="Black", command=self.black_theme)
+        self.theme_edit.add_command(label="White", command=self.white_theme)
         # Help menu
         self.help_menu.add_command(label="About", command=self.about)
         self.help_menu.add_command(label='Check', command=self.line_count)
@@ -224,6 +193,7 @@ class Notepad:
     def tab(self, arg):
         self.text_area.insert(INSERT, " " * self.tab_width)
         return 'break'
+<<<<<<< HEAD
         
     def shift_tab(self, event=None):
         previous_characters = self.text_area.get(
@@ -286,6 +256,16 @@ class Notepad:
                 insertbackground='white')
         else:
             return 'Error'
+=======
+
+    def black_theme(self):
+        self.text_area.config(bg='black', fg='white',
+            insertbackground='white')
+    
+    def white_theme(self):
+        self.text_area.config(bg='white', fg='black',
+            insertbackground='black')
+>>>>>>> parent of a00d12f... Add a bunch of color themes
        
     def vertical_line(self, event=None):
         if self.variable_marker.get() == 1:
