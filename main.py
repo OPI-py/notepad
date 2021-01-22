@@ -1,5 +1,5 @@
 from tkinter import (Tk, messagebox, filedialog, Text, Menu, Scrollbar, END,
-    INSERT, ttk, Canvas, IntVar, Label)
+    INSERT, ttk, Canvas, IntVar, Label, BooleanVar)
 from tkinter.messagebox import *
 from tkinter.filedialog import *
 import os
@@ -20,20 +20,18 @@ class Notepad:
     scrollbar = Scrollbar(root)
     file = None
     
-    variable_marker = IntVar()
+    tab_width = 4
+    
+    variable_marker = BooleanVar()
+    variable_theme = IntVar()
     
     canvas = Canvas(text_area, width=1, height=Height,
-            highlightthickness=0, bg='lightgrey')
+            highlightthickness=0, bg='lightsteelblue3')
             
     statusbar = Label(root, text="Characters: 0", relief=FLAT, anchor=E)
-    line_count_bar = Text(root, relief=FLAT, width=3, state=DISABLED,
-        bg='gray94')
-    
-    tab_width = 4
     
     def __init__(self):
         self.root.title("Untitled - Notepad")
-  
         # Center the window
         screen_width = self.root.winfo_screenwidth() 
         screen_height = self.root.winfo_screenheight() 
@@ -46,23 +44,18 @@ class Notepad:
             left, top))
         # Make the textarea auto resizable
         self.root.grid_rowconfigure(0, weight=1) 
-        self.root.grid_columnconfigure(1, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
         # Make textarea size as window
-        self.text_area.grid(column=1, row=0, sticky='nsew')
-        self.text_area.config(yscrollcommand=self.yscroll_t1)
+        self.text_area.grid(column=0, row=0, sticky='nsew')
         
         # Configure scrollbar
-        self.scrollbar.grid(column=2, row=0, sticky='ns')
-        self.scrollbar.config(command=self.yview,
+        self.scrollbar.grid(column=1, row=0, sticky='ns')
+        self.scrollbar.config(command=self.text_area.yview,
             cursor="sb_v_double_arrow")
+        self.text_area.config(yscrollcommand=self.scrollbar.set)
         
         # Statusbar
-        self.statusbar.grid(column=0, columnspan=3, row=1, sticky='wes')
-        # Line Count Bar
-        self.line_count_bar.grid(column=0, row=0, sticky='ns')
-        self.text_area.bind('<Return>', self.line_count)
-        self.line_count_bar.config(yscrollcommand=self.yscroll_t2)
-        # Text boxes mousewheel bind
+        self.statusbar.grid(sticky='wes')
         
         ## Menu GUI
         self.root.config(menu=self.menu_bar)
@@ -92,11 +85,41 @@ class Notepad:
             command=self.vertical_line)
         # Nested Theme menu
         self.edit_menu.add_cascade(label='Color theme', menu=self.theme_edit)
-        self.theme_edit.add_command(label="Black", command=self.black_theme)
-        self.theme_edit.add_command(label="White", command=self.white_theme)
+        self.theme_edit.add_checkbutton(label="Black", onvalue=1, offvalue=0,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Light Grey", onvalue=2,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Pale Turquoise", onvalue=3,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Snow", onvalue=4,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Azure", onvalue=5,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Navajo White", onvalue=6,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Lavender", onvalue=7,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Misty Rose", onvalue=8,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Dark Slate Gray", onvalue=9,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Dim Gray", onvalue=10,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Khaki", onvalue=11,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Deep Sky Blue", onvalue=12,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Aquamarine", onvalue=13,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Blue", onvalue=14,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Midnight Blue", onvalue=15,
+            variable=self.variable_theme, command=self.theme_activate)
+        self.theme_edit.add_checkbutton(label="Cyber Dark", onvalue=16,
+            variable=self.variable_theme, command=self.theme_activate)
+        
         # Help menu
         self.help_menu.add_command(label="About", command=self.about)
-        self.help_menu.add_command(label='Check', command=self.line_count)
         
         # Mouse right click popup menu
         self.popup_menu.add_command(label="Copy", accelerator='Ctrl+C',
@@ -134,9 +157,6 @@ class Notepad:
         self.root.title("Untitled - Notepad")
         self.file = None
         self.text_area.delete(0.0, END)
-        self.line_count_bar.config(state=NORMAL)
-        self.line_count_bar.delete(0.0, END)
-        self.line_count_bar.config(state=DISABLED)
         
     def open_file(self, event=None):
         self.file = askopenfilename(defaultextension=".txt",
@@ -194,13 +214,13 @@ class Notepad:
     def tab(self, arg):
         self.text_area.insert(INSERT, " " * self.tab_width)
         return 'break'
-        
+    
     def shift_tab(self, event=None):
         previous_characters = self.text_area.get(
             "insert -%dc" % self.tab_width, INSERT)
         if previous_characters == " " * self.tab_width:
             self.text_area.delete("insert-%dc" % self.tab_width, INSERT)
-            return "break"
+        return "break"
        
     def theme_activate(self):
         if self.variable_theme.get() == 0:
@@ -270,29 +290,6 @@ class Notepad:
             self.statusbar.config(text="Characters: " + 
                 str(len(self.text_area.get(1.0, 'end-1c'))))
         self.text_area.edit_modified(False)
-    
-    def line_count(self, event=None):
-        self.line_count_bar.config(state=NORMAL)
-        self.line_count_bar.tag_configure('line', justify='right')
-        self.line_count_bar.tag_add('line', 1.0, END)
-        self.line_count_bar.insert(END,
-            self.text_area.count('1.0', 'end', 'displaylines'))
-        self.line_count_bar.insert(END, '\n')
-        self.line_count_bar.config(state=DISABLED)
-        
-    def yscroll_t1(self, *args):
-        if self.line_count_bar.yview() != self.text_area.yview():
-            self.line_count_bar.yview_moveto(args[0])
-        self.scrollbar.set(*args)
 
-    def yscroll_t2(self, *args):
-        if self.text_area.yview() != self.line_count_bar.yview():
-            self.text_area.yview_moveto(args[0])
-        self.scrollbar.set(*args)
-
-    def yview(self, *args):
-        self.text_area.yview(*args)
-        self.line_count_bar.yview(*args)
-    
 a = Notepad()
 a.run()
