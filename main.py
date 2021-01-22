@@ -193,7 +193,6 @@ class Notepad:
     def tab(self, arg):
         self.text_area.insert(INSERT, " " * self.tab_width)
         return 'break'
-<<<<<<< HEAD
         
     def shift_tab(self, event=None):
         previous_characters = self.text_area.get(
@@ -256,16 +255,6 @@ class Notepad:
                 insertbackground='white')
         else:
             return 'Error'
-=======
-
-    def black_theme(self):
-        self.text_area.config(bg='black', fg='white',
-            insertbackground='white')
-    
-    def white_theme(self):
-        self.text_area.config(bg='white', fg='black',
-            insertbackground='black')
->>>>>>> parent of a00d12f... Add a bunch of color themes
        
     def vertical_line(self, event=None):
         if self.variable_marker.get() == 1:
