@@ -63,8 +63,6 @@ class Notepad:
         self.text_area.bind('<Return>', self.line_count)
         self.line_count_bar.config(yscrollcommand=self.yscroll_t2)
         # Text boxes mousewheel bind
-        # self.text_area.bind('<MouseWheel>', self.mouse_wheel)
-        # self.line_count_bar.bind('<MouseWheel>', self.mouse_wheel)
         
         ## Menu GUI
         self.root.config(menu=self.menu_bar)
@@ -136,6 +134,9 @@ class Notepad:
         self.root.title("Untitled - Notepad")
         self.file = None
         self.text_area.delete(0.0, END)
+        self.line_count_bar.config(state=NORMAL)
+        self.line_count_bar.delete(0.0, END)
+        self.line_count_bar.config(state=DISABLED)
         
     def open_file(self, event=None):
         self.file = askopenfilename(defaultextension=".txt",
