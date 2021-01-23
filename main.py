@@ -9,7 +9,7 @@ class Notepad:
     Width = 700
     Height = 550
     
-    text_area = Text(root, undo=True)
+    text_area = Text(root, undo=True, wrap='char')
     menu_bar = Menu(root)
     file_menu = Menu(menu_bar, tearoff=0)
     edit_menu = Menu(menu_bar, tearoff=0)
@@ -286,10 +286,15 @@ class Notepad:
             return "Error"
             
     def text_area_modified(self, event=None):
+        line=self.text_area.count('1.0', 'end', 'displaylines')
+        # line1 = self.text_area.index('end-1c')  # Shows [line.column]
+        # col=self.text_area.count('current linestart', 'end-1c', 'chars')
+        col=str(len(self.text_area.get('insert linestart','insert lineend')))
+        chr = str(len(self.text_area.get(1.0, 'end-1c')))
         if self.text_area.edit_modified():
-            self.statusbar.config(text="Characters: " + 
-                str(len(self.text_area.get(1.0, 'end-1c'))))
+            self.statusbar.config(
+            text=f"Total Lines: {line[0]} | Col: {col} | Characters: {chr}")
         self.text_area.edit_modified(False)
-
+        
 a = Notepad()
 a.run()
