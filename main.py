@@ -31,6 +31,7 @@ class Notepad:
     statusbar = Label(root,
         text=f"Total Lines: 0 | Col: 0 | Symbols: 0",
         relief=FLAT, anchor=E)
+    left_bar = Label(root, relief=FLAT, width=0)
     
     def __init__(self):
         self.root.title("Untitled - Notepad")
@@ -46,18 +47,20 @@ class Notepad:
             left, top))
         # Make the textarea auto resizable
         self.root.grid_rowconfigure(0, weight=1) 
-        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_columnconfigure(1, weight=1)
         # Make textarea size as window
-        self.text_area.grid(column=0, row=0, sticky='nsew')
+        self.text_area.grid(column=1, row=0, sticky='nsew')
         
         # Configure scrollbar
-        self.scrollbar.grid(column=1, row=0, sticky='ns')
+        self.scrollbar.grid(column=2, row=0, sticky='ns')
         self.scrollbar.config(command=self.text_area.yview,
             cursor="sb_v_double_arrow")
         self.text_area.config(yscrollcommand=self.scrollbar.set)
+        # Left bar
+        self.left_bar.grid(column=0, row=0, sticky='ns')
         
         # Statusbar
-        self.statusbar.grid(sticky='wes')
+        self.statusbar.grid(column=0, columnspan=3, row=1, sticky='wes')
         
         ## Menu GUI
         self.root.config(menu=self.menu_bar)
