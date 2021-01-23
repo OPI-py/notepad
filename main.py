@@ -6,8 +6,8 @@ import os
 
 class Notepad:
     root = Tk()
-    Width = 700
-    Height = 550
+    Width = 800
+    Height = 600
     
     text_area = Text(root, undo=True, wrap='char')
     menu_bar = Menu(root)
@@ -287,13 +287,11 @@ class Notepad:
             
     def text_area_modified(self, event=None):
         line=self.text_area.count('1.0', 'end', 'displaylines')
-        # line1 = self.text_area.index('end-1c')  # Shows [line.column]
-        # col=self.text_area.count('current linestart', 'end-1c', 'chars')
         col=str(len(self.text_area.get('insert linestart','insert lineend')))
-        chr = str(len(self.text_area.get(1.0, 'end-1c')))
+        symb = str(len(self.text_area.get(1.0, 'end-1c')))
         if self.text_area.edit_modified():
             self.statusbar.config(
-            text=f"Total Lines: {line[0]} | Col: {col} | Characters: {chr}")
+            text=f"Total Lines: {line[0]} | Col: {col} | Symbols: {symb}")
         self.text_area.edit_modified(False)
         
 a = Notepad()
