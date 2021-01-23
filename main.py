@@ -28,7 +28,9 @@ class Notepad:
     canvas = Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightsteelblue3')
             
-    statusbar = Label(root, text="Characters: 0", relief=FLAT, anchor=E)
+    statusbar = Label(root,
+        text=f"Total Lines: 0 | Col: 0 | Symbols: 0",
+        relief=FLAT, anchor=E)
     
     def __init__(self):
         self.root.title("Untitled - Notepad")
