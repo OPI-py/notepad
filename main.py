@@ -1,37 +1,36 @@
-from tkinter import (Tk, messagebox, filedialog, Text, Menu, Scrollbar, END,
-    INSERT, ttk, Canvas, IntVar, Label, BooleanVar)
-from tkinter.messagebox import *
-from tkinter.filedialog import *
+import tkinter as tk
+import tkinter.filedialog as tkFileDialog
+import tkinter.messagebox as tkMessageBox
 import os
 
 class Notepad:
-    root = Tk()
+    root = tk.Tk()
     Width = 800
     Height = 600
     
-    text_area = Text(root, undo=True, wrap='char')
-    menu_bar = Menu(root)
-    file_menu = Menu(menu_bar, tearoff=0)
-    edit_menu = Menu(menu_bar, tearoff=0)
-    theme_edit = Menu(edit_menu, tearoff=0)
-    help_menu = Menu(menu_bar, tearoff=0)
-    popup_menu = Menu(root, tearoff=0)
+    text_area = tk.Text(root, undo=True, wrap='char')
+    menu_bar = tk.Menu(root)
+    file_menu = tk.Menu(menu_bar, tearoff=0)
+    edit_menu =tk.Menu(menu_bar, tearoff=0)
+    theme_edit = tk.Menu(edit_menu, tearoff=0)
+    help_menu = tk.Menu(menu_bar, tearoff=0)
+    popup_menu = tk.Menu(root, tearoff=0)
     
-    scrollbar = Scrollbar(root)
+    scrollbar = tk.Scrollbar(root)
     file = None
     
     tab_width = 4
     
-    variable_marker = BooleanVar()
-    variable_theme = IntVar()
+    variable_marker = tk.BooleanVar()
+    variable_theme = tk.IntVar()
     
-    canvas = Canvas(text_area, width=1, height=Height,
+    canvas = tk.Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightsteelblue3')
             
-    statusbar = Label(root,
+    statusbar = tk.Label(root,
         text=f"Total Lines: 0 | Col: 0 | Symbols: 0",
-        relief=FLAT, anchor=E)
-    left_bar = Label(root, relief=FLAT, width=0)
+        relief=tk.FLAT, anchor='e')
+    left_bar = tk.Label(root, relief=tk.FLAT, width=0)
     
     def __init__(self):
         self.root.title("Untitled - Notepad")
@@ -161,29 +160,29 @@ class Notepad:
     def new_file(self, event=None):
         self.root.title("Untitled - Notepad")
         self.file = None
-        self.text_area.delete(0.0, END)
+        self.text_area.delete(0.0, tk.END)
         
     def open_file(self, event=None):
-        self.file = askopenfilename(defaultextension=".txt",
+        self.file = tkFileDialog.askopenfilename(defaultextension=".txt",
             filetypes=[('All Files', '*.*'), ('Text Documents', '*.txt')])
         if self.file == "":
             self.file = None
         else:
             self.root.title(os.path.basename(self.file) + " - Notepad")
-            self.text_area.delete(0.0, END)
+            self.text_area.delete(0.0, tk.END)
             file = open(self.file, 'r')
             self.text_area.insert(0.0, file.read())
             file.close()
 
     def save_file_as(self, event=None):
-        asksaveasfilename(initialfile='Untitled.txt', 
+        tkFileDialog.asksaveasfilename(initialfile='Untitled.txt', 
             defaultextension='.txt', filetypes=[('All Files', '*.*'),
             ('Text Documents', '*.txt')])
             
     def save_file(self, event=None):
         if self.file is not None and self.file != "":
             with open(self.file, 'w') as file:
-                    file.write(self.text_area.get(1.0, END))
+                    file.write(self.text_area.get(1.0, tk.END))
             self.root.title(os.path.basename(self.file))
         else:
             self.save_file_as()
@@ -211,20 +210,20 @@ class Notepad:
         self.text_area.event_generate("<<SelectAll>>")
     
     def about(self):
-        showinfo("Notepad", "Simple but Good :)")
+        tkMessageBox.showinfo("Notepad", "Simple but Good :)")
     
     def run(self):
         self.root.mainloop()
         
     def tab(self, arg):
-        self.text_area.insert(INSERT, " " * self.tab_width)
+        self.text_area.insert(tk.INSERT, " " * self.tab_width)
         return 'break'
     
     def shift_tab(self, event=None):
         previous_characters = self.text_area.get(
-            "insert -%dc" % self.tab_width, INSERT)
+            "insert -%dc" % self.tab_width, tk.INSERT)
         if previous_characters == " " * self.tab_width:
-            self.text_area.delete("insert-%dc" % self.tab_width, INSERT)
+            self.text_area.delete("insert-%dc" % self.tab_width, tk.INSERT)
         return "break"
        
     def theme_activate(self):
@@ -299,5 +298,5 @@ class Notepad:
             text=f"Total Lines: {line[0]} | Col: {col} | Symbols: {symb}")
         self.text_area.edit_modified(False)
         
-a = Notepad()
-a.run()
+notepad = Notepad()
+notepad.run()
