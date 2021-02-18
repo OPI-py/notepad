@@ -54,7 +54,8 @@ class Notepad:
     statusbar = tk.Label(root,
         text=f"Line: 1 | Col: 0 | Symbols: 0",
         relief=tk.FLAT, anchor='e')
-    left_bar = tk.Label(root, relief=tk.FLAT, width=0)
+    line_count_bar = tk.Text(root, relief=tk.FLAT, width=3, state=tk.DISABLED,
+        bg='gray94')
     
     def __init__(self):
         self.root.title("Untitled - Notepad")
@@ -73,14 +74,16 @@ class Notepad:
         self.root.grid_columnconfigure(1, weight=1)
         # Make textarea size as window
         self.text_area.grid(column=1, row=0, sticky='nsew')
+        self.text_area.config(yscrollcommand=self.yscroll_t1)
         
         # Configure scrollbar
         self.scrollbar.grid(column=2, row=0, sticky='ns')
-        self.scrollbar.config(command=self.text_area.yview,
+        self.scrollbar.config(command=self.yview,
             cursor="sb_v_double_arrow")
-        self.text_area.config(yscrollcommand=self.scrollbar.set)
         # Left bar
-        self.left_bar.grid(column=0, row=0, sticky='ns')
+        self.line_count_bar.grid(column=0, row=0, sticky='ns')
+        self.line_count_bar.config(yscrollcommand=self.yscroll_t2)
+        self.text_area.bind('<Return>', self.line_count)
         
         # Statusbar
         self.statusbar.grid(column=0, columnspan=3, row=1, sticky='wes')
@@ -321,6 +324,28 @@ class Notepad:
         self.statusbar.config(
             text=f"Line: {line} | Col: {col} | Symbols: {symb}")
 
+    def line_count(self, event=None):
+        self.line_count_bar.config(state=tk.NORMAL)
+        self.line_count_bar.tag_configure('line', justify='right')
+        self.line_count_bar.tag_add('line', 1.0, tk.END)
+        self.line_count_bar.insert(tk.END,
+            self.text_area.count('1.0', 'end', 'displaylines'))
+        self.line_count_bar.insert(tk.END, '\n')
+        self.line_count_bar.config(state=tk.DISABLED)
+        
+    def yscroll_t1(self, *args):
+        if self.line_count_bar.yview() != self.text_area.yview():
+            self.line_count_bar.yview_moveto(args[0])
+        self.scrollbar.set(*args)
+
+    def yscroll_t2(self, *args):
+        if self.text_area.yview() != self.line_count_bar.yview():
+            self.text_area.yview_moveto(args[0])
+        self.scrollbar.set(*args)
+
+    def yview(self, *args):
+        self.text_area.yview(*args)
+        self.line_count_bar.yview(*args)
         
 notepad = Notepad()
 notepad.run()
