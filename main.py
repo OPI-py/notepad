@@ -7,25 +7,51 @@ import os
 class TextWidget(tk.Text):
     def __init__(self, *args, **kwargs):
         tk.Text.__init__(self, *args, **kwargs)
+        # action for the underlying widget
+        self.first = self._w + "first"
+        self.tk.call("rename", self._w, self.first)
+        self.tk.createcommand(self._w, self.icursor_agent)
 
-        # create a proxy for the underlying widget
-        self.origin = self._w + "origin"
-        self.tk.call("rename", self._w, self.origin)
-        self.tk.createcommand(self._w, self.proxy)
-
-    def proxy(self, *args):
-        command = (self.origin,) + args
+    def icursor_agent(self, *args):
+        # requested action
+        command = (self.first,) + args
         try:
             result = self.tk.call(command)
         except Exception:
             return None
 
-        # generate an event when icursor changed or text area modified
-        if (args[0] in ("insert", "delete") or 
-            args[0:3] == ("mark", "set", "insert")):
-            self.event_generate("<<IcursorChange>>", when="tail")
+        # generate an event when icursor move or edited
+        if (args[0] in ("insert", "replace", "delete") or 
+            args[0:3] == ("mark", "set", "insert") or
+            args[0:2] == ("xview", "moveto") or
+            args[0:2] == ("xview", "scroll") or
+            args[0:2] == ("yview", "moveto") or
+            args[0:2] == ("yview", "scroll")):
+            self.event_generate("<<IcursorModify>>", when="tail")
 
-        return result
+        return result 
+
+
+class LineNumbers(tk.Canvas):
+    def __init__(self, *args, **kwargs):
+        tk.Canvas.__init__(self, *args, **kwargs)
+        self.textwidget = None
+
+    def attach(self, text_widget):
+        self.textwidget = text_widget
+
+    def redraw(self, *args):
+        self.delete("all")
+
+        i = self.textwidget.index("@0,0")
+        while True :
+            dline= self.textwidget.dlineinfo(i)
+            if dline is None: break
+            y = dline[1]
+            line_num = str(i).split(".")[0]
+            self.create_text(2,y,anchor="nw", text=line_num)
+            i = self.textwidget.index("%s+1line" % i)
+
 
 class Notepad:
     root = tk.Tk()
@@ -48,14 +74,13 @@ class Notepad:
     variable_marker = tk.BooleanVar()
     variable_theme = tk.IntVar()
     
-    canvas = tk.Canvas(text_area, width=1, height=Height,
+    canvas_line = tk.Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightsteelblue3')
             
     statusbar = tk.Label(root,
         text=f"Line: 1 | Col: 0 | Symbols: 0",
         relief=tk.FLAT, anchor='e')
-    line_count_bar = tk.Text(root, relief=tk.FLAT, width=3, state=tk.DISABLED,
-        bg='gray94')
+    line_count_bar = LineNumbers(width=30)
     
     def __init__(self):
         self.root.title("Untitled - Notepad")
@@ -74,17 +99,16 @@ class Notepad:
         self.root.grid_columnconfigure(1, weight=1)
         # Make textarea size as window
         self.text_area.grid(column=1, row=0, sticky='nsew')
-        self.text_area.config(yscrollcommand=self.yscroll_t1)
+        # self.text_area.config(yscrollcommand=self.yscroll_t1)
+        self.text_area.configure(yscrollcommand=self.scrollbar.set)
         
         # Configure scrollbar
-        self.scrollbar.grid(column=2, row=0, sticky='ns')
-        self.scrollbar.config(command=self.yview,
+        self.scrollbar.config(command=self.text_area.yview,
             cursor="sb_v_double_arrow")
-        # Left bar
+        self.scrollbar.grid(column=2, row=0, sticky='ns')
+        # Line count bar
+        self.line_count_bar.attach(self.text_area)
         self.line_count_bar.grid(column=0, row=0, sticky='ns')
-        self.line_count_bar.config(yscrollcommand=self.yscroll_t2)
-        self.text_area.bind('<Return>', self.line_count)
-        
         # Statusbar
         self.statusbar.grid(column=0, columnspan=3, row=1, sticky='wes')
         
@@ -176,8 +200,9 @@ class Notepad:
         self.text_area.bind('<Control-o>', self.open_file)
         # Vertical line auto resize
         self.text_area.bind('<Configure>', self.vertical_line)
-        # Statusbar count. Custom event
-        self.text_area.bind("<<IcursorChange>>", self.icursor_change)
+        # Statusbar count. Manual event. Line bar count
+        self.text_area.bind("<<IcursorModify>>", self.icursor_modify)
+        self.text_area.bind("<<Configure>>", self.icursor_modify)
         
     def popup(self, event):
         try:
@@ -312,40 +337,19 @@ class Notepad:
        
     def vertical_line(self, event=None):
         if self.variable_marker.get() == 1:
-            self.canvas.place(x=640, height=self.root.winfo_height())
+            self.canvas_line.place(x=640, height=self.root.winfo_height())
         elif self.variable_marker.get() == 0:
-            self.canvas.place_forget()  # Unmap widget
+            self.canvas_line.place_forget()  # Unmap widget
         else:
             return "Error"          
 
-    def icursor_change(self, event):
+    def icursor_modify(self, event):
         line, col = self.text_area.index("insert").split(".")
         symb = str(len(self.text_area.get(1.0, 'end-1c')))
         self.statusbar.config(
             text=f"Line: {line} | Col: {col} | Symbols: {symb}")
+        self.line_count_bar.redraw()
 
-    def line_count(self, event=None):
-        self.line_count_bar.config(state=tk.NORMAL)
-        self.line_count_bar.tag_configure('line', justify='right')
-        self.line_count_bar.tag_add('line', 1.0, tk.END)
-        self.line_count_bar.insert(tk.END,
-            self.text_area.count('1.0', 'end', 'displaylines'))
-        self.line_count_bar.insert(tk.END, '\n')
-        self.line_count_bar.config(state=tk.DISABLED)
-        
-    def yscroll_t1(self, *args):
-        if self.line_count_bar.yview() != self.text_area.yview():
-            self.line_count_bar.yview_moveto(args[0])
-        self.scrollbar.set(*args)
-
-    def yscroll_t2(self, *args):
-        if self.text_area.yview() != self.line_count_bar.yview():
-            self.text_area.yview_moveto(args[0])
-        self.scrollbar.set(*args)
-
-    def yview(self, *args):
-        self.text_area.yview(*args)
-        self.line_count_bar.yview(*args)
         
 notepad = Notepad()
 notepad.run()
