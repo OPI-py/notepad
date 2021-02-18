@@ -52,7 +52,7 @@ class Notepad:
             highlightthickness=0, bg='lightsteelblue3')
             
     statusbar = tk.Label(root,
-        text=f"Total Lines: 0 | Col: 0 | Symbols: 0",
+        text=f"Line: 1 | Col: 0 | Symbols: 0",
         relief=tk.FLAT, anchor='e')
     left_bar = tk.Label(root, relief=tk.FLAT, width=0)
     
