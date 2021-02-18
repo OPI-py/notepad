@@ -3,12 +3,36 @@ import tkinter.filedialog as tkFileDialog
 import tkinter.messagebox as tkMessageBox
 import os
 
+
+class TextWidget(tk.Text):
+    def __init__(self, *args, **kwargs):
+        tk.Text.__init__(self, *args, **kwargs)
+
+        # create a proxy for the underlying widget
+        self.origin = self._w + "origin"
+        self.tk.call("rename", self._w, self.origin)
+        self.tk.createcommand(self._w, self.proxy)
+
+    def proxy(self, *args):
+        command = (self.origin,) + args
+        try:
+            result = self.tk.call(command)
+        except Exception:
+            return None
+
+        # generate an event when icursor changed or text area modified
+        if (args[0] in ("insert", "delete") or 
+            args[0:3] == ("mark", "set", "insert")):
+            self.event_generate("<<IcursorChange>>", when="tail")
+
+        return result
+
 class Notepad:
     root = tk.Tk()
     Width = 800
     Height = 600
     
-    text_area = tk.Text(root, undo=True, wrap='char')
+    text_area = TextWidget(root, undo=True, wrap='char')
     menu_bar = tk.Menu(root)
     file_menu = tk.Menu(menu_bar, tearoff=0)
     edit_menu =tk.Menu(menu_bar, tearoff=0)
@@ -137,7 +161,6 @@ class Notepad:
         self.popup_menu.add_command(label="Redo", accelerator='Ctrl+R',
             command=self.redo)
         # Button bind
-        self.text_area.bind('<<Modified>>', self.text_area_modified)
         self.text_area.bind('<Tab>', self.tab)
         self.text_area.bind('<Shift-Tab>', self.shift_tab)
         self.text_area.bind('<ButtonRelease-3>', self.popup)
@@ -150,6 +173,8 @@ class Notepad:
         self.text_area.bind('<Control-o>', self.open_file)
         # Vertical line auto resize
         self.text_area.bind('<Configure>', self.vertical_line)
+        # Statusbar count. Custom event
+        self.text_area.bind("<<IcursorChange>>", self.icursor_change)
         
     def popup(self, event):
         try:
@@ -197,8 +222,9 @@ class Notepad:
     def cut(self, event=None):
         self.text_area.event_generate("<<Cut>>")
         
-    def paste(self):
+    def paste(self, event=None):
         self.text_area.event_generate("<<Paste>>")
+        return 'break'
         
     def undo(self, event=None):
         self.text_area.event_generate("<<Undo>>")
@@ -287,16 +313,14 @@ class Notepad:
         elif self.variable_marker.get() == 0:
             self.canvas.place_forget()  # Unmap widget
         else:
-            return "Error"
-            
-    def text_area_modified(self, event=None):
-        line=self.text_area.count('1.0', 'end', 'displaylines')
-        col=str(len(self.text_area.get('insert linestart','insert lineend')))
+            return "Error"          
+
+    def icursor_change(self, event):
+        line, col = self.text_area.index("insert").split(".")
         symb = str(len(self.text_area.get(1.0, 'end-1c')))
-        if self.text_area.edit_modified():
-            self.statusbar.config(
-            text=f"Total Lines: {line[0]} | Col: {col} | Symbols: {symb}")
-        self.text_area.edit_modified(False)
+        self.statusbar.config(
+            text=f"Line: {line} | Col: {col} | Symbols: {symb}")
+
         
 notepad = Notepad()
 notepad.run()
