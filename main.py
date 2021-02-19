@@ -61,7 +61,8 @@ class Notepad:
     text_area = TextWidget(root, undo=True, wrap='char')
     menu_bar = tk.Menu(root)
     file_menu = tk.Menu(menu_bar, tearoff=0)
-    edit_menu =tk.Menu(menu_bar, tearoff=0)
+    edit_menu = tk.Menu(menu_bar, tearoff=0)
+    customize_menu = tk.Menu(menu_bar, tearoff=0)
     theme_edit = tk.Menu(edit_menu, tearoff=0)
     help_menu = tk.Menu(menu_bar, tearoff=0)
     popup_menu = tk.Menu(root, tearoff=0)
@@ -77,10 +78,9 @@ class Notepad:
     canvas_line = tk.Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightsteelblue3')
             
-    statusbar = tk.Label(root,
-        text=f"Line: 1 | Col: 0 | Symbols: 0",
-        relief=tk.FLAT, anchor='e')
-    line_count_bar = LineNumbers(width=30)
+    statusbar = tk.Label(root, text=f"Line: 1 | Col: 0 | Symbols: 0",
+        relief=tk.FLAT, anchor='e', highlightthickness=0)
+    line_count_bar = LineNumbers(width=27, highlightthickness=0)
     
     def __init__(self):
         self.root.title("Untitled - Notepad")
@@ -116,6 +116,7 @@ class Notepad:
         self.root.config(menu=self.menu_bar)
         self.menu_bar.add_cascade(label='File', menu=self.file_menu)
         self.menu_bar.add_cascade(label="Edit", menu=self.edit_menu)
+        self.menu_bar.add_cascade(label='Customize', menu=self.customize_menu)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
         # File menu
         self.file_menu.add_command(label='New', accelerator='Ctrl+N', 
@@ -135,11 +136,13 @@ class Notepad:
             command=self.paste)
         self.edit_menu.add_command(label="Select all", accelerator='Ctrl+A',
             command=self.select_all)
-        self.edit_menu.add_checkbutton(label='Vertical marker',
+        # Customize menu
+        self.customize_menu.add_checkbutton(label='Vertical marker',
             onvalue=1, offvalue=0, variable=self.variable_marker,
             command=self.vertical_line)
+        self.customize_menu.add_cascade(label='Color theme',
+            menu=self.theme_edit)
         # Nested Theme menu
-        self.edit_menu.add_cascade(label='Color theme', menu=self.theme_edit)
         self.theme_edit.add_checkbutton(label="Black", onvalue=1, offvalue=0,
             variable=self.variable_theme, command=self.theme_activate)
         self.theme_edit.add_checkbutton(label="Light Grey", onvalue=2,
@@ -349,7 +352,6 @@ class Notepad:
         self.statusbar.config(
             text=f"Line: {line} | Col: {col} | Symbols: {symb}")
         self.line_count_bar.redraw()
-
         
 notepad = Notepad()
 notepad.run()
