@@ -1,2 +1,2 @@
 # notepad
-Notepad
+python-tkinter notepad-source code editor
