@@ -63,7 +63,8 @@ class Notepad:
     file_menu = tk.Menu(menu_bar, tearoff=0)
     edit_menu = tk.Menu(menu_bar, tearoff=0)
     customize_menu = tk.Menu(menu_bar, tearoff=0)
-    theme_edit = tk.Menu(edit_menu, tearoff=0)
+    vertical_marker_menu = tk.Menu(customize_menu, tearoff=0)
+    theme_edit = tk.Menu(customize_menu, tearoff=0)
     help_menu = tk.Menu(menu_bar, tearoff=0)
     popup_menu = tk.Menu(root, tearoff=0)
     
@@ -72,7 +73,7 @@ class Notepad:
     
     tab_width = 4
     
-    variable_marker = tk.BooleanVar()
+    variable_marker = tk.IntVar()
     variable_theme = tk.IntVar()
     
     canvas_line = tk.Canvas(text_area, width=1, height=Height,
@@ -137,11 +138,16 @@ class Notepad:
         self.edit_menu.add_command(label="Select all", accelerator='Ctrl+A',
             command=self.select_all)
         # Customize menu
-        self.customize_menu.add_checkbutton(label='Vertical marker',
-            onvalue=1, offvalue=0, variable=self.variable_marker,
-            command=self.vertical_line)
+        self.customize_menu.add_cascade(label='Vertical marker',
+            menu=self.vertical_marker_menu)
         self.customize_menu.add_cascade(label='Color theme',
             menu=self.theme_edit)
+        # Vertical marker
+        self.vertical_marker_menu.add_checkbutton(label="80", onvalue=1,
+            offvalue=0, variable=self.variable_marker,
+            command=self.vertical_line)
+        self.vertical_marker_menu.add_checkbutton(label="120", onvalue=2,
+            variable=self.variable_marker, command=self.vertical_line)
         # Nested Theme menu
         self.theme_edit.add_checkbutton(label="Black", onvalue=1, offvalue=0,
             variable=self.variable_theme, command=self.theme_activate)
@@ -339,10 +345,12 @@ class Notepad:
             return 'Error'
        
     def vertical_line(self, event=None):
-        if self.variable_marker.get() == 1:
-            self.canvas_line.place(x=640, height=self.root.winfo_height())
-        elif self.variable_marker.get() == 0:
+        if self.variable_marker.get() == 0:
             self.canvas_line.place_forget()  # Unmap widget
+        elif self.variable_marker.get() == 1:
+            self.canvas_line.place(x=640, height=self.root.winfo_height())
+        elif self.variable_marker.get() == 2:
+            self.canvas_line.place(x=960, height=self.root.winfo_height())
         else:
             return "Error"          
 
