@@ -64,7 +64,7 @@ class Notepad:
     edit_menu = tk.Menu(menu_bar, tearoff=0)
     customize_menu = tk.Menu(menu_bar, tearoff=0)
     vertical_marker_menu = tk.Menu(customize_menu, tearoff=0)
-    left_bar_menu = tk.Menu(customize_menu, tearoff=0)
+    line_bar_menu = tk.Menu(customize_menu, tearoff=0)
     theme_edit = tk.Menu(customize_menu, tearoff=0)
     help_menu = tk.Menu(menu_bar, tearoff=0)
     popup_menu = tk.Menu(root, tearoff=0)
@@ -76,7 +76,7 @@ class Notepad:
     
     variable_marker = tk.IntVar()
     variable_theme = tk.IntVar()
-    variable_left_bar = tk.IntVar()
+    variable_line_bar = tk.IntVar()
     
     canvas_line = tk.Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightsteelblue3')
@@ -143,12 +143,21 @@ class Notepad:
             menu=self.vertical_marker_menu)
         self.customize_menu.add_cascade(label='Color theme',
             menu=self.theme_edit)
-        self.customize_menu.add_cascade(label="Left bar color",
-            menu=self.left_bar_menu)
+        self.customize_menu.add_cascade(label="Line bar color",
+            menu=self.line_bar_menu)
         # Left bar color
-        self.left_bar_menu.add_checkbutton(label='LightSteelBlue', onvalue=1,
-            offvalue=0, variable=self.variable_left_bar,
-            command=self.left_bar_color)
+        self.line_bar_menu.add_checkbutton(label='LightSteelBlue', onvalue=1,
+            offvalue=0, variable=self.variable_line_bar,
+            command=self.line_bar_color)
+        self.line_bar_menu.add_checkbutton(label='Yellow', onvalue=2,
+            offvalue=0, variable=self.variable_line_bar,
+            command=self.line_bar_color)
+        self.line_bar_menu.add_checkbutton(label='Dodger blue', onvalue=3,
+            offvalue=0, variable=self.variable_line_bar,
+            command=self.line_bar_color)
+        self.line_bar_menu.add_checkbutton(label='Indian red', onvalue=4,
+            offvalue=0, variable=self.variable_line_bar,
+            command=self.line_bar_color)
         # Vertical marker
         self.vertical_marker_menu.add_checkbutton(label="80", onvalue=1,
             offvalue=0, variable=self.variable_marker,
@@ -368,11 +377,19 @@ class Notepad:
             text=f"Line: {line} | Col: {col} | Symbols: {symb}")
         self.line_count_bar.redraw()
     
-    def left_bar_color(self, event=None):
-        if self.variable_left_bar.get() == 0:
+    def line_bar_color(self, event=None):
+        if self.variable_line_bar.get() == 0:
             self.line_count_bar.config(bg='SystemButtonFace')
-        elif self.variable_left_bar.get() == 1:
+        elif self.variable_line_bar.get() == 1:
             self.line_count_bar.config(bg='lightsteelblue3')
+        elif self.variable_line_bar.get() == 2:
+            self.line_count_bar.config(bg='yellow')
+        elif self.variable_line_bar.get() == 3:
+            self.line_count_bar.config(bg='dodger blue')
+        elif self.variable_line_bar.get() == 4:
+            self.line_count_bar.config(bg='Indian red')
+        else:
+            return "Error"
 
 notepad = Notepad()
 notepad.run()
