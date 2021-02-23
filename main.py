@@ -71,7 +71,10 @@ class Notepad:
     popup_menu = tk.Menu(root, tearoff=0)
     
     scrollbar = tk.Scrollbar(root)
-    file = None
+
+    filename = ''
+    file_options = [('All Files', '*.*'), ('Python Files', '*.py'),
+                ('Text Document', '*.txt')]
     
     tab_width = 4
     
@@ -87,7 +90,7 @@ class Notepad:
         relief=tk.FLAT, anchor='e', highlightthickness=0)
     line_count_bar = LineNumbers(width=27, highlightthickness=0)
     def __init__(self):
-        self.root.title("Untitled - Notepad")
+        self.root.title("Untitled")
         # Center the window
         screen_width = self.root.winfo_screenwidth() 
         screen_height = self.root.winfo_screenheight() 
@@ -253,35 +256,40 @@ class Notepad:
             self.popup_menu.grab_release()
     
     def new_file(self, event=None):
-        self.root.title("Untitled - Notepad")
-        self.file = None
+        self.root.title("Untitled")
+        self.filename = ''
         self.text_area.delete(0.0, tk.END)
         
     def open_file(self, event=None):
-        self.file = tkFileDialog.askopenfilename(defaultextension=".txt",
-            filetypes=[('All Files', '*.*'), ('Text Documents', '*.txt')])
-        if self.file == "":
-            self.file = None
-        else:
-            self.root.title(os.path.basename(self.file) + " - Notepad")
-            self.text_area.delete(0.0, tk.END)
-            file = open(self.file, 'r')
-            self.text_area.insert(0.0, file.read())
-            file.close()
+        self.filename = tkFileDialog.askopenfilename(defaultextension=".txt",
+            filetypes=self.file_options)
+        if self.filename is not None:
+            with open(self.filename, 'r') as note:
+                self.root.title(os.path.basename(self.filename))
+                self.text_area.delete(0.0, tk.END)
+                self.text_area.insert(0.0, note.read())
 
     def save_file_as(self, event=None):
-        tkFileDialog.asksaveasfilename(initialfile='Untitled.txt', 
-            defaultextension='.txt', filetypes=[('All Files', '*.*'),
-            ('Text Documents', '*.txt')])
-            
+        try:
+            self.filename = tkFileDialog.asksaveasfilename(
+                initialfile=self.root.title(), defaultextension='.txt',
+                filetypes=self.file_options)
+            with open(self.filename, 'w') as data:
+                data.write(self.text_area.get(1.0, tk.END))
+            self.root.title(os.path.basename(self.filename))
+        except Exception as e:
+            return e
+                
     def save_file(self, event=None):
-        if self.file is not None and self.file != "":
-            with open(self.file, 'w') as file:
-                    file.write(self.text_area.get(1.0, tk.END))
-            self.root.title(os.path.basename(self.file))
-        else:
+        if self.filename != None and self.filename != "":
+            with open(self.filename, 'w') as note:
+                    note.write(self.text_area.get(1.0, tk.END))
+            self.root.title(os.path.basename(self.filename))
+        elif self.filename == None or self.filename =='':
             self.save_file_as()
-                            
+        else:
+            return "Error"
+
     def quit_app(self):
         self.save_file()
         self.root.destroy()
@@ -393,6 +401,9 @@ class Notepad:
         self.statusbar.config(
             text=f"Line: {line} | Col: {col} | Symbols: {symb}")
         self.line_count_bar.redraw()
+        # Need to think
+        """if self.text_area.edit_modified():
+            self.root.title(os.path.basename(self.filename) + '*')"""
     
     def line_bar_color(self, event=None):
         if self.variable_line_bar.get() == 0:
