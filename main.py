@@ -73,6 +73,7 @@ class Notepad:
     scrollbar = tk.Scrollbar(root)
 
     filename = ''
+    filename_var = ''
     file_options = [('All Files', '*.*'), ('Python Files', '*.py'),
                 ('Text Document', '*.txt')]
     
@@ -256,7 +257,7 @@ class Notepad:
             self.popup_menu.grab_release()
     
     def new_file(self, event=None):
-        self.root.title("Untitled")
+        self.root.title(self.filename)
         self.filename = ''
         self.text_area.delete(0.0, tk.END)
         
@@ -264,19 +265,23 @@ class Notepad:
         self.filename = tkFileDialog.askopenfilename(defaultextension=".txt",
             filetypes=self.file_options)
         if self.filename is not None:
-            with open(self.filename, 'r') as note:
+            with open(self.filename, 'r') as data:
                 self.root.title(os.path.basename(self.filename))
                 self.text_area.delete(0.0, tk.END)
-                self.text_area.insert(0.0, note.read())
+                self.text_area.insert(0.0, data.read())
 
     def save_file_as(self, event=None):
+        self.filename_var = self.filename
         try:
             self.filename = tkFileDialog.asksaveasfilename(
-                initialfile=self.root.title(), defaultextension='.txt',
+                initialfile=self.root.title().strip("*"), defaultextension='.txt',
                 filetypes=self.file_options)
-            with open(self.filename, 'w') as data:
-                data.write(self.text_area.get(1.0, tk.END))
-            self.root.title(os.path.basename(self.filename))
+            if self.filename == '':
+                self.filename = self.filename_var
+            else:
+                with open(self.filename, 'w') as data:
+                    data.write(self.text_area.get(1.0, tk.END))
+                    self.root.title(os.path.basename(self.filename))
         except Exception as e:
             return e
                 
@@ -402,8 +407,8 @@ class Notepad:
             text=f"Line: {line} | Col: {col} | Symbols: {symb}")
         self.line_count_bar.redraw()
         # Need to think
-        """if self.text_area.edit_modified():
-            self.root.title(os.path.basename(self.filename) + '*')"""
+        if self.text_area.edit_modified():
+            self.root.title(os.path.basename(self.filename) + '*')
     
     def line_bar_color(self, event=None):
         if self.variable_line_bar.get() == 0:
