@@ -83,6 +83,7 @@ class Notepad:
     variable_theme = tk.IntVar()
     variable_line_bar = tk.IntVar()
     variable_statusbar = tk.IntVar()
+    variable_hide_menu = tk.BooleanVar()
     
     canvas_line = tk.Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightsteelblue3')
@@ -233,6 +234,8 @@ class Notepad:
             command=self.undo)
         self.popup_menu.add_command(label="Redo", accelerator='Ctrl+R',
             command=self.redo)
+        self.popup_menu.add_command(label='Hide menu',
+            command=self.hide_menu, accelerator='Ctrl+H')
         # Button bind
         self.text_area.bind('<Tab>', self.tab)
         self.text_area.bind('<Shift-Tab>', self.shift_tab)
@@ -244,6 +247,7 @@ class Notepad:
         self.text_area.bind('<Control-Alt-s>', self.save_file_as)
         self.text_area.bind('<Control-n>', self.new_file)
         self.text_area.bind('<Control-o>', self.open_file)
+        self.text_area.bind('<Control-h>', self.hide_menu)
         # Vertical line auto resize
         self.text_area.bind('<Configure>', self.vertical_line)
         # Statusbar count. Manual event. Line bar count
@@ -274,8 +278,8 @@ class Notepad:
         self.filename_var = self.filename
         try:
             self.filename = tkFileDialog.asksaveasfilename(
-                initialfile=self.root.title().strip("*"), defaultextension='.txt',
-                filetypes=self.file_options)
+                initialfile=self.root.title().strip("*"),
+                defaultextension='.txt', filetypes=self.file_options)
             if self.filename == '':
                 self.filename = self.filename_var
             else:
@@ -438,6 +442,14 @@ class Notepad:
         else:
             return "Error"
 
+    def hide_menu(self, event=None):
+        fake_menu_bar = tk.Menu(self.root)
+        if self.variable_hide_menu.get() == False:
+            self.root.config(menu=fake_menu_bar)
+            self.variable_hide_menu.set(True)
+        elif self.variable_hide_menu.get() == True:
+            self.root.config(menu=self.menu_bar)
+            self.variable_hide_menu.set(False)
 
 notepad = Notepad()
 notepad.run()
