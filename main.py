@@ -67,6 +67,7 @@ class Notepad:
     line_bar_menu = tk.Menu(customize_menu, tearoff=0)
     statusbar_menu = tk.Menu(customize_menu, tearoff=0)
     theme_edit = tk.Menu(customize_menu, tearoff=0)
+    s_bars_menu = tk.Menu(customize_menu, tearoff=0)
     help_menu = tk.Menu(menu_bar, tearoff=0)
     popup_menu = tk.Menu(root, tearoff=0)
     
@@ -84,6 +85,8 @@ class Notepad:
     variable_line_bar = tk.IntVar()
     variable_statusbar = tk.IntVar()
     variable_hide_menu = tk.BooleanVar()
+    variable_statusbar_hide = tk.BooleanVar()
+    variable_line_bar_hide = tk.BooleanVar()
     
     canvas_line = tk.Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightsteelblue3')
@@ -93,9 +96,11 @@ class Notepad:
     line_count_bar = LineNumbers(width=27, highlightthickness=0)
     def __init__(self):
         self.root.title("Untitled")
+
         # Center the window
         screen_width = self.root.winfo_screenwidth() 
         screen_height = self.root.winfo_screenheight() 
+
         # For left-alling
         left = (screen_width / 2) - (self.Width / 2)  
         # For right-allign
@@ -103,21 +108,23 @@ class Notepad:
         # For top and bottom
         self.root.geometry('%dx%d+%d+%d' % (self.Width, self.Height,
             left, top))
+
         # Make the textarea auto resizable
         self.root.grid_rowconfigure(0, weight=1) 
         self.root.grid_columnconfigure(1, weight=1)
         # Make textarea size as window
         self.text_area.grid(column=1, row=0, sticky='nsew')
-        # self.text_area.config(yscrollcommand=self.yscroll_t1)
-        self.text_area.configure(yscrollcommand=self.scrollbar.set)
         
         # Configure scrollbar
+        self.text_area.configure(yscrollcommand=self.scrollbar.set)
         self.scrollbar.config(command=self.text_area.yview,
             cursor="sb_v_double_arrow")
         self.scrollbar.grid(column=2, row=0, sticky='ns')
+
         # Line count bar
         self.line_count_bar.attach(self.text_area)
         self.line_count_bar.grid(column=0, row=0, sticky='ns')
+
         # Statusbar
         self.statusbar.grid(column=0, columnspan=3, row=1, sticky='wes')
         
@@ -127,6 +134,7 @@ class Notepad:
         self.menu_bar.add_cascade(label="Edit", menu=self.edit_menu)
         self.menu_bar.add_cascade(label='Customize', menu=self.customize_menu)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
+
         # File menu
         self.file_menu.add_command(label='New', accelerator='Ctrl+N', 
             command=self.new_file)
@@ -138,6 +146,7 @@ class Notepad:
             accelerator='Ctrl+Alt+S', command=self.save_file_as)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.quit_app)
+        
         # Edit menu
         self.edit_menu.add_command(label="Copy", accelerator='Ctrl+C',
             command=self.copy)
@@ -145,6 +154,7 @@ class Notepad:
             command=self.paste)
         self.edit_menu.add_command(label="Select all", accelerator='Ctrl+A',
             command=self.select_all)
+
         # Customize menu
         self.customize_menu.add_cascade(label='Vertical marker',
             menu=self.vertical_marker_menu)
@@ -154,7 +164,16 @@ class Notepad:
             menu=self.line_bar_menu)
         self.customize_menu.add_cascade(label="Statusbar color",
             menu=self.statusbar_menu)
-        #status bar color
+        self.customize_menu.add_cascade(label='StatusBars',
+            menu=self.s_bars_menu)
+
+        # StatusBars hide option
+        self.s_bars_menu.add_command(label='Hide Bottom',
+            command=self.statusbar_remove)
+        self.s_bars_menu.add_command(label='Hide LeftBar',
+            command=self.line_bar_remove)
+
+        # Status bar color
         self.statusbar_menu.add_checkbutton(label='LightSteelBlue', onvalue=1,
             offvalue=0, variable=self.variable_statusbar,
             command=self.statusbar_color)
@@ -167,6 +186,7 @@ class Notepad:
         self.statusbar_menu.add_checkbutton(label='Indian red', onvalue=4,
             offvalue=0, variable=self.variable_statusbar,
             command=self.statusbar_color)
+
         # Left bar color
         self.line_bar_menu.add_checkbutton(label='LightSteelBlue', onvalue=1,
             offvalue=0, variable=self.variable_line_bar,
@@ -180,12 +200,14 @@ class Notepad:
         self.line_bar_menu.add_checkbutton(label='Indian red', onvalue=4,
             offvalue=0, variable=self.variable_line_bar,
             command=self.line_bar_color)
+
         # Vertical marker
         self.vertical_marker_menu.add_checkbutton(label="80", onvalue=1,
             offvalue=0, variable=self.variable_marker,
             command=self.vertical_line)
         self.vertical_marker_menu.add_checkbutton(label="120", onvalue=2,
             variable=self.variable_marker, command=self.vertical_line)
+
         # Nested Theme menu
         self.theme_edit.add_checkbutton(label="Black", onvalue=1, offvalue=0,
             variable=self.variable_theme, command=self.theme_activate)
@@ -236,6 +258,7 @@ class Notepad:
             command=self.redo)
         self.popup_menu.add_command(label='Hide menu',
             command=self.hide_menu, accelerator='Ctrl+H')
+
         # Button bind
         self.text_area.bind('<Tab>', self.tab)
         self.text_area.bind('<Shift-Tab>', self.shift_tab)
@@ -248,8 +271,10 @@ class Notepad:
         self.text_area.bind('<Control-n>', self.new_file)
         self.text_area.bind('<Control-o>', self.open_file)
         self.text_area.bind('<Control-h>', self.hide_menu)
+
         # Vertical line auto resize
         self.text_area.bind('<Configure>', self.vertical_line)
+
         # Statusbar count. Manual event. Line bar count
         self.text_area.bind("<<IcursorModify>>", self.icursor_modify)
         self.text_area.bind("<<Configure>>", self.icursor_modify)
@@ -450,6 +475,22 @@ class Notepad:
         elif self.variable_hide_menu.get() == True:
             self.root.config(menu=self.menu_bar)
             self.variable_hide_menu.set(False)
+    
+    def statusbar_remove(self):
+        if self.variable_statusbar_hide.get() == False:
+            self.statusbar.grid_forget()
+            self.variable_statusbar_hide.set(True)
+        elif self.variable_statusbar_hide.get() == True:
+            self.statusbar.grid(column=0, columnspan=3, row=1, sticky='wes')
+            self.variable_statusbar_hide.set(False)
+    
+    def line_bar_remove(self):
+        if self.variable_line_bar_hide.get() == False:
+            self.line_count_bar.grid_forget()
+            self.variable_line_bar_hide.set(True)
+        elif self.variable_line_bar_hide.get() == True:
+            self.line_count_bar.grid(column=0, row=0, sticky='ns')
+            self.variable_line_bar_hide.set(False)
 
 notepad = Notepad()
 notepad.run()
