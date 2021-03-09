@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.filedialog as tkFileDialog
 import tkinter.messagebox as tkMessageBox
 import os
+import ctypes
 
 
 class TextWidget(tk.Text):
@@ -114,6 +115,9 @@ class Notepad:
         self.root.grid_columnconfigure(1, weight=1)
         # Make textarea size as window
         self.text_area.grid(column=1, row=0, sticky='nsew')
+
+        # Set DPI Awareness  (Windows 10 and 8)
+        errorCode = ctypes.windll.shcore.SetProcessDpiAwareness(2)
         
         # Configure scrollbar
         self.text_area.configure(yscrollcommand=self.scrollbar.set)
