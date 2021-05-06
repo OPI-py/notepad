@@ -3,30 +3,10 @@ import tkinter.filedialog as tkFileDialog
 import tkinter.messagebox as tkMessageBox
 
 from text_widget import TextWidget
+from line_enumerator import LineEnumerator
 
 import os
 import ctypes
-
-
-class LineNumbers(tk.Canvas):
-    def __init__(self, *args, **kwargs):
-        tk.Canvas.__init__(self, *args, **kwargs)
-        self.textwidget = None
-
-    def attach(self, text_widget):
-        self.textwidget = text_widget
-
-    def redraw(self, *args):
-        self.delete("all")
-
-        i = self.textwidget.index("@0,0")
-        while True :
-            dline= self.textwidget.dlineinfo(i)
-            if dline is None: break
-            y = dline[1]
-            line_num = str(i).split(".")[0]
-            self.create_text(2,y,anchor="nw", text=line_num)
-            i = self.textwidget.index("%s+1line" % i)
 
 
 class Notepad:
@@ -69,8 +49,8 @@ class Notepad:
             
     statusbar = tk.Label(root, text=f"Line: 1 | Col: 0 | Symbols: 0",
         relief=tk.FLAT, anchor='e', highlightthickness=0)
-    line_count_bar = LineNumbers(width=27, highlightthickness=0)
-    
+    line_count_bar = LineEnumerator(width=27, highlightthickness=0)
+
     def __init__(self):
         self.root.title("Untitled")
 
