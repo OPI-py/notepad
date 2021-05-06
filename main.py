@@ -27,7 +27,8 @@ class Notepad:
     help_menu = tk.Menu(menu_bar, tearoff=0)
     popup_menu = tk.Menu(root, tearoff=0)
     
-    scrollbar = tk.Scrollbar(root)
+    scrollbar_y = tk.Scrollbar(root)
+    scrollbar_x = tk.Scrollbar(root, orient='horizontal')
 
     filename = ''
     filename_var = ''
@@ -75,18 +76,23 @@ class Notepad:
         # Set DPI Awareness  (Windows 10 and 8)
         errorCode = ctypes.windll.shcore.SetProcessDpiAwareness(2)
         
-        # Configure scrollbar
-        self.text_area.configure(yscrollcommand=self.scrollbar.set)
-        self.scrollbar.config(command=self.text_area.yview,
+        # Configure Yscrollbar
+        self.text_area.configure(yscrollcommand=self.scrollbar_y.set)
+        self.scrollbar_y.config(command=self.text_area.yview,
             cursor="sb_v_double_arrow")
-        self.scrollbar.grid(column=2, row=0, sticky='ns')
+        self.scrollbar_y.grid(column=2, row=0, sticky='ns')
+        # Configure Xscrollbar
+        self.text_area.configure(xscrollcommand=self.scrollbar_x.set)
+        self.scrollbar_x.config(command=self.text_area.xview,
+            cursor="sb_h_double_arrow")
+        self.scrollbar_x.grid(column=1, row=1, sticky='ew')
 
         # Line count bar
         self.line_count_bar.attach(self.text_area)
         self.line_count_bar.grid(column=0, row=0, sticky='ns')
 
         # Statusbar
-        self.statusbar.grid(column=0, columnspan=3, row=1, sticky='wes')
+        self.statusbar.grid(column=0, columnspan=3, row=2, sticky='wes')
         
         ## Menu GUI
         self.root.config(menu=self.menu_bar)
