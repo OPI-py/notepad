@@ -257,13 +257,16 @@ class Notepad:
         self.text_area.delete(0.0, tk.END)
         
     def open_file(self, event=None):
-        self.filename = tkFileDialog.askopenfilename(defaultextension=".txt",
-            filetypes=self.file_options)
-        if self.filename is not None:
-            with open(self.filename, 'r') as data:
-                self.root.title(os.path.basename(self.filename))
-                self.text_area.delete(0.0, tk.END)
-                self.text_area.insert(0.0, data.read())
+        try:
+            self.filename = tkFileDialog.askopenfilename(defaultextension=".txt",
+                filetypes=self.file_options)
+            if self.filename is not None:
+                with open(self.filename, 'r') as data:
+                    self.root.title(os.path.basename(self.filename))
+                    self.text_area.delete(0.0, tk.END)
+                    self.text_area.insert(0.0, data.read())
+        except FileNotFoundError:
+            return None
 
     def save_file_as(self, event=None):
         self.filename_var = self.filename
@@ -278,7 +281,7 @@ class Notepad:
                     data.write(self.text_area.get(1.0, tk.END))
                     self.root.title(os.path.basename(self.filename))
         except Exception as e:
-            return e
+            raise e
                 
     def save_file(self, event=None):
         if self.filename != None and self.filename != "":
@@ -317,7 +320,10 @@ class Notepad:
         tkMessageBox.showinfo("Notepad", "Simple but Good :)")
     
     def run(self):
-        self.root.mainloop()
+        try:
+            self.root.mainloop()
+        except Exception as e:
+            raise e
         
     def tab(self, arg):
         self.text_area.insert(tk.INSERT, " " * self.tab_width)
@@ -441,6 +447,8 @@ class Notepad:
         elif self.variable_hide_menu.get() == True:
             self.root.config(menu=self.menu_bar)
             self.variable_hide_menu.set(False)
+        else:
+            return None
     
     def statusbar_remove(self):
         if self.variable_statusbar_hide.get() == False:
@@ -449,6 +457,8 @@ class Notepad:
         elif self.variable_statusbar_hide.get() == True:
             self.statusbar.grid(column=0, columnspan=3, row=1, sticky='wes')
             self.variable_statusbar_hide.set(False)
+        else:
+            return None
     
     def line_bar_remove(self):
         if self.variable_line_bar_hide.get() == False:
@@ -457,6 +467,8 @@ class Notepad:
         elif self.variable_line_bar_hide.get() == True:
             self.line_count_bar.grid(column=0, row=0, sticky='ns')
             self.variable_line_bar_hide.set(False)
+        else:
+            return None
 
 notepad = Notepad()
 notepad.run()
