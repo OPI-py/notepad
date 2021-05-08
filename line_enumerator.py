@@ -14,9 +14,12 @@ class LineEnumerator(tk.Canvas):
 
         i = self.textwidget.index("@0,0")
         while True :
-            dline= self.textwidget.dlineinfo(i)
-            if dline is None: break
-            y = dline[1]
-            line_num = str(i).split(".")[0]
-            self.create_text(2,y,anchor="nw", text=line_num)
-            i = self.textwidget.index("%s+1line" % i)
+            try:
+                dline= self.textwidget.dlineinfo(i)
+                if dline is None: break
+                y = dline[1]
+                line_num = str(i).split(".")[0]
+                self.create_text(2,y,anchor="nw", text=line_num)
+                i = self.textwidget.index("%s+1line" % i)
+            except Exception as e:
+                raise e
