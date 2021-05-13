@@ -26,6 +26,8 @@ class Notepad:
     s_bars_menu = tk.Menu(customize_menu, tearoff=0)
     help_menu = tk.Menu(menu_bar, tearoff=0)
     popup_menu = tk.Menu(root, tearoff=0)
+
+    search_box_label = tk.Label(text_area, highlightthickness=0)
     
     scrollbar_y = tk.Scrollbar(root)
     scrollbar_x = tk.Scrollbar(root, orient='horizontal')
@@ -44,6 +46,7 @@ class Notepad:
     variable_hide_menu = tk.BooleanVar()
     variable_statusbar_hide = tk.BooleanVar()
     variable_line_bar_hide = tk.BooleanVar()
+    variable_search_box = tk.BooleanVar()
     
     canvas_line = tk.Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightsteelblue3')
@@ -120,6 +123,8 @@ class Notepad:
             command=self.paste)
         self.edit_menu.add_command(label="Select all", accelerator='Ctrl+A',
             command=self.select_all)
+        self.edit_menu.add_command(label="Search", accelerator='Ctrl+F',
+            command=self.search_box)
 
         # Customize menu
         self.customize_menu.add_cascade(label='Vertical marker',
@@ -237,6 +242,7 @@ class Notepad:
         self.text_area.bind('<Control-n>', self.new_file)
         self.text_area.bind('<Control-o>', self.open_file)
         self.text_area.bind('<Control-h>', self.hide_menu)
+        self.text_area.bind('<Control-f>', self.search_box)
 
         # Vertical line auto resize
         self.text_area.bind('<Configure>', self.vertical_line)
@@ -244,7 +250,48 @@ class Notepad:
         # Statusbar count. Manual event. Line bar count
         self.text_area.bind("<<IcursorModify>>", self.icursor_modify)
         self.text_area.bind("<<Configure>>", self.icursor_modify)
-        
+
+        # Search entry box
+        self.search_entry = tk.Entry(self.search_box_label, bg='light cyan', bd=4,
+            width=35, justify=tk.CENTER)
+        self.search_entry.grid(column=1, row=0, columnspan=1)
+        self.search_button = tk.Button(self.search_box_label, text='Search', bd=1,
+            command=self.find_match, cursor='arrow')
+        self.search_button.grid(column=0, row=0, columnspan=1)
+
+    def search_box(self, event=None):
+        """Show Search box inside text area"""
+        if self.variable_search_box.get() == True:
+            self.search_box_label.place_forget()
+            self.variable_search_box.set(False)
+            self.search_entry.unbind('<Return>')
+        elif self.variable_search_box.get() == False:
+            self.search_box_label.place(bordermode=tk.INSIDE,
+                width=self.Width/3, relx=1.0, rely=0.0, anchor='ne')
+            self.variable_search_box.set(True)
+            self.search_entry.bind('<Return>', self.find_match)
+        else:
+            return None
+
+    def find_match(self, event=None):
+        """Search for match of words or symbols inside text area"""
+        self.text_area.tag_remove('find_match', '1.0', tk.END)
+        _search = self.search_entry.get()
+
+        if _search:
+            _index = '1.0'
+            while True:
+                _index = self.text_area.search(_search, _index,
+                    nocase=True, stopindex=tk.END)
+                if not _index:
+                    break
+                _last_index = '%s+%dc' % (_index, len(_search))
+                self.text_area.tag_add('find_match', _index, _last_index)
+                _index = _last_index
+            self.text_area.tag_config('find_match', background='yellow',
+                foreground='black')
+        self.search_entry.focus_set()
+
     def popup(self, event):
         try:
             self.popup_menu.tk_popup(event.x_root, event.y_root, 0)
