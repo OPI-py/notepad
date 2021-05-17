@@ -125,6 +125,7 @@ class Notepad:
             command=self.select_all)
         self.edit_menu.add_command(label="Search", accelerator='Ctrl+F',
             command=self.search_box)
+        self.edit_menu.add_command(label="Find next", command=self.next_match)
 
         # Customize menu
         self.customize_menu.add_cascade(label='Vertical marker',
@@ -242,7 +243,7 @@ class Notepad:
         self.text_area.bind('<Control-n>', self.new_file)
         self.text_area.bind('<Control-o>', self.open_file)
         self.text_area.bind('<Control-h>', self.hide_menu)
-        self.text_area.bind('<Control-f>', self.search_box)
+        self.root.bind('<Control-f>', self.search_box)
 
         # Vertical line auto resize
         self.text_area.bind('<Configure>', self.vertical_line)
@@ -260,7 +261,7 @@ class Notepad:
         self.search_button.grid(column=0, row=0, columnspan=1)
 
     def search_box(self, event=None):
-        """Show Search box inside text area"""
+        """Make Search box appear inside text area"""
         if self.variable_search_box.get() == True:
             self.search_box_label.place_forget()
             self.variable_search_box.set(False)
@@ -269,6 +270,7 @@ class Notepad:
             self.search_box_label.place(bordermode=tk.INSIDE,
                 width=self.Width/3, relx=1.0, rely=0.0, anchor='ne')
             self.variable_search_box.set(True)
+            self.search_entry.focus_set()
             self.search_entry.bind('<Return>', self.find_match)
         else:
             return None
@@ -291,6 +293,26 @@ class Notepad:
             self.text_area.tag_config('find_match', background='yellow',
                 foreground='black')
         self.search_entry.focus_set()
+        return "break"
+
+    def next_match(self, event=None):
+        """
+        Move cursor to next match and focus it.
+        https://stackoverflow.com/a/44164144
+        """
+        self.text_area.focus_set()
+        # move cursor to beginning of current match
+        while (self.text_area.compare("insert", "<", "end") and
+            "find_match" in self.text_area.tag_names("insert")):
+                self.text_area.mark_set("insert", "insert+1c")
+        # find next character with the tag
+        next_match = self.text_area.tag_nextrange("find_match", "insert")
+        if next_match:
+            self.text_area.mark_set("insert", next_match[0])
+            self.text_area.see("insert")
+        # prevent default behavior, in case this was called
+        # via a key binding
+        return "break"
 
     def popup(self, event):
         try:
