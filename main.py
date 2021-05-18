@@ -1,10 +1,10 @@
 import tkinter as tk
 import tkinter.filedialog as tkFileDialog
 import tkinter.messagebox as tkMessageBox
-from scrollbar import AutoScrollbar
 
 from text_widget import TextWidget
 from line_enumerator import LineEnumerator
+from scrollbar import AutoScrollbar
 
 import os
 import ctypes
@@ -12,6 +12,7 @@ import ctypes
 
 class Notepad:
     root = tk.Tk()
+    
     Width = 800
     Height = 600
     
@@ -559,5 +560,6 @@ class Notepad:
         else:
             return None
 
-notepad = Notepad()
-notepad.run()
+if __name__ == '__main__':
+    notepad = Notepad()
+    notepad.run()
