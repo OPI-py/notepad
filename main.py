@@ -35,7 +35,7 @@ class Notepad:
     filename = ''
     filename_var = ''
     file_options = [('All Files', '*.*'), ('Python Files', '*.py'),
-                ('Text Document', '*.txt')]
+                ('Text Document', '*.self.text_area')]
     
     tab_width = 4
     
@@ -47,6 +47,7 @@ class Notepad:
     variable_statusbar_hide = tk.BooleanVar()
     variable_line_bar_hide = tk.BooleanVar()
     variable_search_box = tk.BooleanVar()
+    variable_search = tk.BooleanVar()
     
     canvas_line = tk.Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightsteelblue3')
@@ -57,7 +58,6 @@ class Notepad:
 
     def __init__(self):
         self.root.title("Untitled")
-
         # Center the window
         screen_width = self.root.winfo_screenwidth() 
         screen_height = self.root.winfo_screenheight() 
@@ -125,7 +125,6 @@ class Notepad:
             command=self.select_all)
         self.edit_menu.add_command(label="Search", accelerator='Ctrl+F',
             command=self.search_box)
-        self.edit_menu.add_command(label="Find next", command=self.next_match)
 
         # Customize menu
         self.customize_menu.add_cascade(label='Vertical marker',
@@ -252,13 +251,16 @@ class Notepad:
         self.text_area.bind("<<IcursorModify>>", self.icursor_modify)
         self.text_area.bind("<<Configure>>", self.icursor_modify)
 
-        # Search entry box
+        # Search box
         self.search_entry = tk.Entry(self.search_box_label, bg='light cyan', bd=4,
-            width=35, justify=tk.CENTER)
+            width=29, justify=tk.CENTER)
         self.search_entry.grid(column=1, row=0, columnspan=1)
-        self.search_button = tk.Button(self.search_box_label, text='Search', bd=1,
-            command=self.find_match, cursor='arrow')
+        self.search_button = tk.Button(self.search_box_label, text='Find all',
+            bd=1, command=self.find_match, cursor='arrow')
         self.search_button.grid(column=0, row=0, columnspan=1)
+        self.find_next = tk.Button(self.search_box_label, text='Next', 
+            bd=1, command=self.next_match, cursor='arrow')
+        self.find_next.grid(column=2, row=0, columnspan=1)
 
     def search_box(self, event=None):
         """Make Search box appear inside text area"""
@@ -293,25 +295,36 @@ class Notepad:
             self.text_area.tag_config('find_match', background='yellow',
                 foreground='black')
         self.search_entry.focus_set()
+        self.variable_search.set(True)
         return "break"
 
     def next_match(self, event=None):
         """
-        Move cursor to next match and focus it.
+        Move cursor to next match, highlight and focus it.
         https://stackoverflow.com/a/44164144
         """
+        if self.variable_search.get() == True:
+            # move cursor to start of text area
+            self.text_area.mark_set("insert", "1.0")
+        _search = self.search_entry.get()
         self.text_area.focus_set()
+        self.text_area.tag_delete('find_next')
         # move cursor to beginning of current match
         while (self.text_area.compare("insert", "<", "end") and
             "find_match" in self.text_area.tag_names("insert")):
                 self.text_area.mark_set("insert", "insert+1c")
+        _last_index = '%s+%dc' % ("insert", len(_search))
         # find next character with the tag
         next_match = self.text_area.tag_nextrange("find_match", "insert")
+        self.text_area.tag_config('find_next', background='aquamarine',
+                foreground='black')
         if next_match:
             self.text_area.mark_set("insert", next_match[0])
+            self.text_area.tag_add('find_next', next_match[0], _last_index)
             self.text_area.see("insert")
         # prevent default behavior, in case this was called
         # via a key binding
+        self.variable_search.set(False)
         return "break"
 
     def popup(self, event):
@@ -327,7 +340,7 @@ class Notepad:
         
     def open_file(self, event=None):
         try:
-            self.filename = tkFileDialog.askopenfilename(defaultextension=".txt",
+            self.filename = tkFileDialog.askopenfilename(defaultextension=".self.text_area",
                 filetypes=self.file_options)
             if self.filename is not None:
                 with open(self.filename, 'r') as data:
@@ -342,7 +355,7 @@ class Notepad:
         try:
             self.filename = tkFileDialog.asksaveasfilename(
                 initialfile=self.root.title().strip("*"),
-                defaultextension='.txt', filetypes=self.file_options)
+                defaultextension='.self.text_area', filetypes=self.file_options)
             if self.filename == '':
                 self.filename = self.filename_var
             else:
