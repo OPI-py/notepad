@@ -340,8 +340,8 @@ class Notepad:
         
     def open_file(self, event=None):
         try:
-            self.filename = tkFileDialog.askopenfilename(defaultextension=".self.text_area",
-                filetypes=self.file_options)
+            self.filename = tkFileDialog.askopenfilename(
+                defaultextension=".txt", filetypes=self.file_options)
             if self.filename is not None:
                 with open(self.filename, 'r') as data:
                     self.root.title(os.path.basename(self.filename))
@@ -355,7 +355,7 @@ class Notepad:
         try:
             self.filename = tkFileDialog.asksaveasfilename(
                 initialfile=self.root.title().strip("*"),
-                defaultextension='.self.text_area', filetypes=self.file_options)
+                defaultextension='.txt', filetypes=self.file_options)
             if self.filename == '':
                 self.filename = self.filename_var
             else:
