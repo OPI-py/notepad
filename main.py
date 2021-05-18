@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.filedialog as tkFileDialog
 import tkinter.messagebox as tkMessageBox
+from scrollbar import AutoScrollbar
 
 from text_widget import TextWidget
 from line_enumerator import LineEnumerator
@@ -29,8 +30,8 @@ class Notepad:
 
     search_box_label = tk.Label(text_area, highlightthickness=0)
     
-    scrollbar_y = tk.Scrollbar(root)
-    scrollbar_x = tk.Scrollbar(root, orient='horizontal')
+    scrollbar_y = AutoScrollbar(text_area, orient='vertical')
+    scrollbar_x = AutoScrollbar(text_area, orient='horizontal')
 
     filename = ''
     filename_var = ''
@@ -82,12 +83,10 @@ class Notepad:
         self.text_area.configure(yscrollcommand=self.scrollbar_y.set)
         self.scrollbar_y.config(command=self.text_area.yview,
             cursor="sb_v_double_arrow")
-        self.scrollbar_y.grid(column=2, row=0, sticky='ns')
         # Configure Xscrollbar
         self.text_area.configure(xscrollcommand=self.scrollbar_x.set)
         self.scrollbar_x.config(command=self.text_area.xview,
             cursor="sb_h_double_arrow")
-        self.scrollbar_x.grid(column=1, row=1, sticky='ew')
 
         # Line count bar
         self.line_count_bar.attach(self.text_area)
@@ -120,6 +119,10 @@ class Notepad:
             command=self.copy)
         self.edit_menu.add_command(label="Paste", accelerator='Ctrl+V',
             command=self.paste)
+        self.edit_menu.add_command(label="Undo", accelerator='Ctrl+Z',
+            command=self.undo)
+        self.edit_menu.add_command(label="Redo", accelerator='Ctrl+R',
+            command=self.redo)
         self.edit_menu.add_command(label="Select all", accelerator='Ctrl+A',
             command=self.select_all)
         self.edit_menu.add_command(label="Search", accelerator='Ctrl+F',
@@ -264,12 +267,14 @@ class Notepad:
     def search_box(self, event=None):
         """Make Search box appear inside text area"""
         if self.variable_search_box.get() == True:
-            self.search_box_label.place_forget()
+            # self.search_box_label.place_forget()
+            self.search_box_label.pack_forget()
             self.variable_search_box.set(False)
             self.search_entry.unbind('<Return>')
         elif self.variable_search_box.get() == False:
-            self.search_box_label.place(bordermode=tk.INSIDE,
-                width=self.Width/3, relx=1.0, rely=0.0, anchor='ne')
+            # self.search_box_label.place(bordermode=tk.INSIDE,
+            #     width=self.Width/3, relx=1.0, rely=0.0, anchor='ne')
+            self.search_box_label.pack(side=tk.TOP, anchor=tk.NE, before=self.scrollbar_y)
             self.variable_search_box.set(True)
             self.search_entry.focus_set()
             self.search_entry.bind('<Return>', self.find_match)
