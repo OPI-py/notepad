@@ -47,7 +47,6 @@ class Notepad:
     variable_statusbar_hide = tk.BooleanVar()
     variable_line_bar_hide = tk.BooleanVar()
     variable_search_box = tk.BooleanVar()
-    variable_search = tk.BooleanVar()
     
     canvas_line = tk.Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightsteelblue3')
@@ -295,17 +294,15 @@ class Notepad:
             self.text_area.tag_config('find_match', background='yellow',
                 foreground='black')
         self.search_entry.focus_set()
-        self.variable_search.set(True)
         return "break"
 
     def next_match(self, event=None):
         """
         Move cursor to next match, highlight and focus it.
+        After last match is marked - start over.
+
         https://stackoverflow.com/a/44164144
         """
-        if self.variable_search.get() == True:
-            # move cursor to start of text area
-            self.text_area.mark_set("insert", "1.0")
         _search = self.search_entry.get()
         self.text_area.focus_set()
         self.text_area.tag_delete('find_next')
@@ -318,13 +315,18 @@ class Notepad:
         next_match = self.text_area.tag_nextrange("find_match", "insert")
         self.text_area.tag_config('find_next', background='aquamarine',
                 foreground='black')
+
         if next_match:
             self.text_area.mark_set("insert", next_match[0])
             self.text_area.tag_add('find_next', next_match[0], _last_index)
             self.text_area.see("insert")
+        elif next_match == ():
+            # mark all concurrences again from beggining
+            self.text_area.mark_set("insert", "1.0")
+        else:
+            return None
         # prevent default behavior, in case this was called
         # via a key binding
-        self.variable_search.set(False)
         return "break"
 
     def popup(self, event):
