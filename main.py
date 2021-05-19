@@ -336,12 +336,17 @@ class Notepad:
         return "break"
 
     def popup(self, event):
+        """
+        Show context menu when Mouse <Button-3> is clicked.
+        https://stackoverflow.com/a/12014379
+        """
         try:
             self.popup_menu.tk_popup(event.x_root, event.y_root, 0)
         finally:
             self.popup_menu.grab_release()
     
     def new_file(self, event=None):
+        """Clear text area."""
         self.root.title(self.filename)
         self.filename = ''
         self.text_area.delete(0.0, tk.END)
@@ -359,6 +364,10 @@ class Notepad:
             return None
 
     def save_file_as(self, event=None):
+        """
+        Define file name, extension and save file.
+        Remove '*' symbol from file name.
+        """
         self.filename_var = self.filename
         try:
             self.filename = tkFileDialog.asksaveasfilename(
@@ -374,6 +383,7 @@ class Notepad:
             raise e
                 
     def save_file(self, event=None):
+        """AutoSave file if it was opened else "Save as"."""
         if self.filename != None and self.filename != "":
             with open(self.filename, 'w') as note:
                     note.write(self.text_area.get(1.0, tk.END))
@@ -416,17 +426,25 @@ class Notepad:
             raise e
         
     def tab(self, arg):
+        """Change "TAB" button behaviour. Insert 4 spaces"""
         self.text_area.insert(tk.INSERT, " " * self.tab_width)
         return 'break'
     
     def shift_tab(self, event=None):
+        """
+        Change "Shift+TAB" behaviour. Return icursor 4 spaces back.
+        https://stackoverflow.com/a/43920993
+        """
+        # get 4 characters before icursor
         previous_characters = self.text_area.get(
             "insert -%dc" % self.tab_width, tk.INSERT)
+        # if previous characters are spaces -> remove them
         if previous_characters == " " * self.tab_width:
             self.text_area.delete("insert-%dc" % self.tab_width, tk.INSERT)
         return "break"
        
     def theme_activate(self):
+        """Change background, font color, icursor color"""
         if self.variable_theme.get() == 0:
             self.text_area.config(bg='SystemWindow', fg='SystemWindowText',
                 insertbackground='SystemWindowText')
@@ -482,6 +500,7 @@ class Notepad:
             return 'Error'
        
     def vertical_line(self, event=None):
+        """Inseert or remove vertical marker"""
         if self.variable_marker.get() == 0:
             self.canvas_line.place_forget()  # Unmap widget
         elif self.variable_marker.get() == 1:
@@ -492,16 +511,24 @@ class Notepad:
             return "Error"          
 
     def icursor_modify(self, event):
+        """
+        Count line and column where cursor inserted.
+        Count total amount of symbols.
+        Show line, col and symb inside statusbar.
+        Activate redraw function for line-count bar.
+        """
         line, col = self.text_area.index("insert").split(".")
         symb = str(len(self.text_area.get(1.0, 'end-1c')))
         self.statusbar.config(
             text=f"Line: {line} | Col: {col} | Symbols: {symb}")
         self.line_count_bar.redraw()
-        # Need to think
         if self.text_area.edit_modified():
+            # Insert "*" symbol to filename when text area modified
+            # Need to remake
             self.root.title(os.path.basename(self.filename) + '*')
     
     def line_bar_color(self, event=None):
+        """Change color of line-count bar"""
         if self.variable_line_bar.get() == 0:
             self.line_count_bar.config(bg='SystemButtonFace')
         elif self.variable_line_bar.get() == 1:
@@ -516,6 +543,7 @@ class Notepad:
             return "Error"
     
     def statusbar_color(self, event=None):
+        """Change color of bottom status bar"""
         if self.variable_statusbar.get() == 0:
             self.statusbar.config(bg='SystemButtonFace')
         elif self.variable_statusbar.get() == 1:
@@ -530,6 +558,7 @@ class Notepad:
             return "Error"
 
     def hide_menu(self, event=None):
+        """Hide main menu"""
         fake_menu_bar = tk.Menu(self.root)
         if self.variable_hide_menu.get() == False:
             self.root.config(menu=fake_menu_bar)
@@ -541,6 +570,7 @@ class Notepad:
             return None
     
     def statusbar_remove(self):
+        """Hide(remove) bottom status bar bar"""
         if self.variable_statusbar_hide.get() == False:
             self.statusbar.grid_forget()
             self.variable_statusbar_hide.set(True)
@@ -551,6 +581,7 @@ class Notepad:
             return None
     
     def line_bar_remove(self):
+        """Hide(remove) line-count bar"""
         if self.variable_line_bar_hide.get() == False:
             self.line_count_bar.grid_forget()
             self.variable_line_bar_hide.set(True)
