@@ -2,14 +2,20 @@ import tkinter as tk
 
 
 class LineEnumerator(tk.Canvas):
+    """
+    Canvas class for displaying line numbers.
+    https://stackoverflow.com/a/16375233
+    """
     def __init__(self, *args, **kwargs):
         tk.Canvas.__init__(self, *args, **kwargs)
         self.textwidget = None
 
     def attach(self, text_widget):
+        """Associating a text widget with main widget."""
         self.textwidget = text_widget
 
     def redraw(self, *args):
+        """Redraw line numbers"""
         self.delete("all")
 
         i = self.textwidget.index("@0,0")
