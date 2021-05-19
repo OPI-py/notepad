@@ -275,7 +275,7 @@ class Notepad:
         elif self.variable_search_box.get() == False:
             # self.search_box_label.place(bordermode=tk.INSIDE,
             #     width=self.Width/3, relx=1.0, rely=0.0, anchor='ne')
-            self.search_box_label.pack(side=tk.TOP, anchor=tk.NE, before=self.scrollbar_y)
+            self.search_box_label.pack(side=tk.TOP, anchor=tk.NE)
             self.variable_search_box.set(True)
             self.search_entry.focus_set()
             self.search_entry.bind('<Return>', self.find_match)
