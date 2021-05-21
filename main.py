@@ -29,7 +29,8 @@ class Notepad:
     help_menu = tk.Menu(menu_bar, tearoff=0)
     popup_menu = tk.Menu(root, tearoff=0)
 
-    search_box_label = tk.Label(text_area, highlightthickness=0)
+    search_box_label = tk.Label(text_area, highlightthickness=0,
+        bg='SystemWindow')
     
     scrollbar_y = AutoScrollbar(text_area, orient='vertical')
     scrollbar_x = AutoScrollbar(text_area, orient='horizontal')
