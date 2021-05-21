@@ -2,4 +2,4 @@
 <hr>
 <code>python==3.8.8</code>
 <hr>
-<p><img src=https://user-images.githubusercontent.com/70897912/118833168-eb446f00-b8c9-11eb-9e03-62bb5420723d.png alt="Pic" width="800" height="600" ></p>
+<p><img src=https://user-images.githubusercontent.com/70897912/119117648-1b0e8680-ba32-11eb-8386-8970351bebde.png alt="Pic" width="743" height="653" ></p>
