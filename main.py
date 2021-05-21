@@ -255,8 +255,8 @@ class Notepad:
         self.text_area.bind("<<Configure>>", self.icursor_modify)
 
         # Search box
-        self.search_entry = tk.Entry(self.search_box_label, bg='light cyan', bd=4,
-            width=29, justify=tk.CENTER)
+        self.search_entry = tk.Entry(self.search_box_label, bg='light cyan',
+            bd=4, width=29, justify=tk.CENTER)
         self.search_entry.grid(column=1, row=0, columnspan=1)
         self.search_button = tk.Button(self.search_box_label, text='Find all',
             bd=1, command=self.find_match, cursor='arrow')
@@ -264,6 +264,13 @@ class Notepad:
         self.find_next = tk.Button(self.search_box_label, text='Next', 
             bd=1, command=self.next_match, cursor='arrow')
         self.find_next.grid(column=2, row=0, columnspan=1)
+
+        self.replace_match_entry = tk.Entry(self.search_box_label, bg='gold', bd=4,
+            width=29, justify=tk.CENTER)
+        self.replace_match_entry.grid(column=3, row=0, columnspan=1)
+        self.repace_match_button = tk.Button(self.search_box_label, bd=1,
+            text='Replace all', command=self.replace_match, cursor='arrow')
+        self.repace_match_button.grid(column=4, row=0, columnspan=1)
 
     def search_box(self, event=None):
         """Make Search box appear inside text area"""
@@ -334,6 +341,26 @@ class Notepad:
         # prevent default behavior, in case this was called
         # via a key binding
         return "break"
+
+    def replace_match(self):
+        """Find and replace occurrences. Case sensitive."""
+        _search = self.search_entry.get()
+        _replace = self.replace_match_entry.get()
+
+        if _search and _replace:
+            _index = "1.0"
+            while True:
+                _index = self.text_area.search(_search, _index, nocase=False,
+                    stopindex=tk.END)
+
+                if not _index:
+                    break
+
+                _lastindex = '% s+% dc' % (_index, len(_search))
+
+                self.text_area.delete(_index, _lastindex)
+                self.text_area.insert(_index, _replace)
+
 
     def popup(self, event):
         """
