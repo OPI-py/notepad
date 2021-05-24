@@ -7,7 +7,11 @@ from line_enumerator import LineEnumerator
 from scrollbar import AutoScrollbar
 
 import os
+import sys
 import ctypes
+
+from pygments import lex
+from pygments.lexers import PythonLexer
 
 
 class Notepad:
@@ -15,7 +19,7 @@ class Notepad:
     
     Width = 800
     Height = 600
-    
+
     text_area = TextWidget(root, undo=True, wrap='none')
     menu_bar = tk.Menu(root)
     file_menu = tk.Menu(menu_bar, tearoff=0)
@@ -77,9 +81,6 @@ class Notepad:
         self.root.grid_columnconfigure(1, weight=1)
         # Make textarea size as window
         self.text_area.grid(column=1, row=0, sticky='nsew')
-
-        # Set DPI Awareness  (Windows 10 and 8)
-        errorCode = ctypes.windll.shcore.SetProcessDpiAwareness(2)
         
         # Configure Yscrollbar
         self.text_area.configure(yscrollcommand=self.scrollbar_y.set)
@@ -121,10 +122,12 @@ class Notepad:
             command=self.copy)
         self.edit_menu.add_command(label="Paste", accelerator='Ctrl+V',
             command=self.paste)
+        self.edit_menu.add_separator()
         self.edit_menu.add_command(label="Undo", accelerator='Ctrl+Z',
             command=self.undo)
         self.edit_menu.add_command(label="Redo", accelerator='Ctrl+R',
             command=self.redo)
+        self.edit_menu.add_separator()
         self.edit_menu.add_command(label="Select all", accelerator='Ctrl+A',
             command=self.select_all)
         self.edit_menu.add_command(label="Search", accelerator='Ctrl+F',
@@ -272,6 +275,8 @@ class Notepad:
         self.repace_match_button = tk.Button(self.search_box_label, bd=1,
             text='Replace all', command=self.replace_match, cursor='arrow')
         self.repace_match_button.grid(column=4, row=0, columnspan=1)
+
+        self.dpi_awareness()
 
     def search_box(self, event=None):
         """Make Search box appear inside text area"""
@@ -618,6 +623,16 @@ class Notepad:
             self.variable_line_bar_hide.set(False)
         else:
             return None
+
+    def dpi_awareness(self):
+        """Set DPI Awareness  (Windows 10 and 8)"""
+        if sys.platform == 'win32':
+            try:
+                import ctypes
+
+                ctypes.windll.shcore.SetProcessDpiAwareness(2)
+            except (ImportError, OSError):
+                pass
 
 if __name__ == '__main__':
     notepad = Notepad()
