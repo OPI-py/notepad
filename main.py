@@ -8,10 +8,6 @@ from scrollbar import AutoScrollbar
 
 import os
 import sys
-import ctypes
-
-from pygments import lex
-from pygments.lexers import PythonLexer
 
 
 class Notepad:
