@@ -54,11 +54,12 @@ class Notepad:
     canvas_line = tk.Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightsteelblue3')
             
-    statusbar = tk.Label(root, text=f"Line: 1 | Col: 0 | Symbols: 0",
+    statusbar = tk.Label(root, text=f"",
         relief=tk.FLAT, anchor='e', highlightthickness=0)
     line_count_bar = LineEnumerator(width=27, highlightthickness=0)
 
     def __init__(self):
+
         self.root.title("Untitled")
         # Center the window
         screen_width = self.root.winfo_screenwidth() 
@@ -86,13 +87,6 @@ class Notepad:
         self.text_area.configure(xscrollcommand=self.scrollbar_x.set)
         self.scrollbar_x.config(command=self.text_area.xview,
             cursor="sb_h_double_arrow")
-
-        # Line count bar
-        self.line_count_bar.attach(self.text_area)
-        self.line_count_bar.grid(column=0, row=0, sticky='ns')
-
-        # Statusbar
-        self.statusbar.grid(column=0, columnspan=3, row=2, sticky='wes')
         
         ## Menu GUI
         self.root.config(menu=self.menu_bar)
@@ -141,11 +135,13 @@ class Notepad:
         self.customize_menu.add_cascade(label='StatusBars',
             menu=self.s_bars_menu)
 
-        # StatusBars hide option
-        self.s_bars_menu.add_command(label='Hide Bottom',
-            command=self.statusbar_remove)
-        self.s_bars_menu.add_command(label='Hide LeftBar',
-            command=self.line_bar_remove)
+        # StatusBars show-hide option
+        self.s_bars_menu.add_checkbutton(label='Statusbar', onvalue=1,
+            offvalue=0, variable=self.variable_statusbar_hide,
+            command=self.statusbar_show_remove)
+        self.s_bars_menu.add_checkbutton(label='Linebar', onvalue=1,
+            offvalue=0, variable=self.variable_line_bar_hide,
+            command=self.line_bar_show_remove)
 
         # Status bar color
         self.statusbar_menu.add_checkbutton(label='LightSteelBlue', onvalue=1,
@@ -250,10 +246,6 @@ class Notepad:
         # Vertical line auto resize
         self.text_area.bind('<Configure>', self.vertical_line)
 
-        # Statusbar count. Manual event. Line bar count
-        self.text_area.bind("<<IcursorModify>>", self.icursor_modify)
-        self.text_area.bind("<<Configure>>", self.icursor_modify)
-
         # Search box
         self.search_entry = tk.Entry(self.search_box_label, bg='light cyan',
             bd=4, width=29, justify=tk.CENTER)
@@ -271,8 +263,8 @@ class Notepad:
         self.repace_match_button = tk.Button(self.search_box_label, bd=1,
             text='Replace all', command=self.replace_match, cursor='arrow')
         self.repace_match_button.grid(column=4, row=0, columnspan=1)
-
         self.dpi_awareness()
+
 
     def search_box(self, event=None):
         """Make Search box appear inside text area"""
@@ -539,22 +531,27 @@ class Notepad:
         else:
             return "Error"          
 
-    def icursor_modify(self, event):
+    def count_text_area(self, event):
         """
         Count line and column where cursor inserted.
         Count total amount of symbols.
         Show line, col and symb inside statusbar.
-        Activate redraw function for line-count bar.
         """
         line, col = self.text_area.index("insert").split(".")
         symb = str(len(self.text_area.get(1.0, 'end-1c')))
         self.statusbar.config(
             text=f"Line: {line} | Col: {col} | Symbols: {symb}")
-        self.line_count_bar.redraw()
-        if self.text_area.edit_modified():
+        
+        # if self.text_area.edit_modified():
             # Insert "*" symbol to filename when text area modified
             # Need to remake
-            self.root.title(os.path.basename(self.filename) + '*')
+            # self.root.title(os.path.basename(self.filename) + '*')
+
+    def icursor_modify(self, event):
+        """
+        Draw line number inside line-count bar.
+        """
+        self.line_count_bar.redraw()
     
     def line_bar_color(self, event=None):
         """Change color of line-count bar"""
@@ -598,25 +595,33 @@ class Notepad:
         else:
             return None
     
-    def statusbar_remove(self):
+    def statusbar_show_remove(self):
         """Hide(remove) bottom status bar bar"""
         if self.variable_statusbar_hide.get() == False:
-            self.statusbar.grid_forget()
-            self.variable_statusbar_hide.set(True)
+            try:
+                self.statusbar.grid_forget()
+                self.text_area.unbind("<KeyRelease>", self.count_text_area)
+            except TypeError:
+                pass
         elif self.variable_statusbar_hide.get() == True:
             self.statusbar.grid(column=0, columnspan=3, row=1, sticky='wes')
-            self.variable_statusbar_hide.set(False)
+            self.text_area.bind("<KeyRelease>", self.count_text_area)
         else:
             return None
     
-    def line_bar_remove(self):
+    def line_bar_show_remove(self):
         """Hide(remove) line-count bar"""
         if self.variable_line_bar_hide.get() == False:
-            self.line_count_bar.grid_forget()
-            self.variable_line_bar_hide.set(True)
+            try:
+                self.line_count_bar.delete("all")
+                self.line_count_bar.grid_forget()
+                self.text_area.unbind("<<IcursorModify>>")
+            except TypeError:
+                pass
         elif self.variable_line_bar_hide.get() == True:
             self.line_count_bar.grid(column=0, row=0, sticky='ns')
-            self.variable_line_bar_hide.set(False)
+            self.line_count_bar.attach(self.text_area)
+            self.text_area.bind("<<IcursorModify>>", self.icursor_modify)
         else:
             return None
 
@@ -629,6 +634,7 @@ class Notepad:
                 ctypes.windll.shcore.SetProcessDpiAwareness(2)
             except (ImportError, OSError):
                 pass
+
 
 if __name__ == '__main__':
     notepad = Notepad()
