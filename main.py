@@ -87,7 +87,7 @@ class Notepad:
         self.text_area.configure(xscrollcommand=self.scrollbar_x.set)
         self.scrollbar_x.config(command=self.text_area.xview,
             cursor="sb_h_double_arrow")
-        
+
         ## Menu GUI
         self.root.config(menu=self.menu_bar)
         self.menu_bar.add_cascade(label='File', menu=self.file_menu)
@@ -264,7 +264,6 @@ class Notepad:
             text='Replace all', command=self.replace_match, cursor='arrow')
         self.repace_match_button.grid(column=4, row=0, columnspan=1)
         self.dpi_awareness()
-
 
     def search_box(self, event=None):
         """Make Search box appear inside text area"""
@@ -596,21 +595,31 @@ class Notepad:
             return None
     
     def statusbar_show_remove(self):
-        """Hide(remove) bottom status bar bar"""
+        """
+        Hide(remove) bottom status bar bar.
+        Create combined event "<<ButtonKeyRelease>>.
+        Delete "<<ButtonKeyRelease>> if statusbar removed."
+        """
         if self.variable_statusbar_hide.get() == False:
             try:
+                self.text_area.event_delete("<<ButtonKeyRelease>>")
                 self.statusbar.grid_forget()
-                self.text_area.unbind("<KeyRelease>", self.count_text_area)
             except TypeError:
                 pass
         elif self.variable_statusbar_hide.get() == True:
+            self.text_area.event_add("<<ButtonKeyRelease>>", 
+                "<ButtonRelease>", "<KeyRelease>")
             self.statusbar.grid(column=0, columnspan=3, row=1, sticky='wes')
-            self.text_area.bind("<KeyRelease>", self.count_text_area)
+            self.text_area.bind("<<ButtonKeyRelease>>", self.count_text_area)
         else:
             return None
     
     def line_bar_show_remove(self):
-        """Hide(remove) line-count bar"""
+        """
+        Hide(remove) line-count bar.
+        Bind custom event "<<IcursorModify>>".
+        Undind if line_count_bar removed.
+        """
         if self.variable_line_bar_hide.get() == False:
             try:
                 self.line_count_bar.delete("all")
