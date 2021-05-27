@@ -265,6 +265,7 @@ class Notepad:
         self.repace_match_button.grid(column=4, row=0, columnspan=1)
         self.dpi_awareness()
 
+
     def search_box(self, event=None):
         """Make Search box appear inside text area"""
         if self.variable_search_box.get() == True:
@@ -596,13 +597,17 @@ class Notepad:
     
     def statusbar_show_remove(self):
         """
-        Hide(remove) bottom status bar bar.
+        Hide(remove) bottom status bar.
         Create combined event "<<ButtonKeyRelease>>.
         Delete "<<ButtonKeyRelease>> if statusbar removed."
         """
         if self.variable_statusbar_hide.get() == False:
             try:
-                self.text_area.event_delete("<<ButtonKeyRelease>>")
+                self.text_area.unbind("<<ButtonKeyRelea>>", 
+                    self.text_area.bind("<<ButtonKeyRelease>>", 
+                    self.count_text_area)) # Make better
+                self.text_area.event_delete("<<ButtonKeyRelea>>",
+                    "<ButtonRelease>", "<KeyRelease>")
                 self.statusbar.grid_forget()
             except TypeError:
                 pass
@@ -624,7 +629,9 @@ class Notepad:
             try:
                 self.line_count_bar.delete("all")
                 self.line_count_bar.grid_forget()
-                self.text_area.unbind("<<IcursorModify>>")
+                self.text_area.unbind("<<IcursorModify>>",
+                    self.text_area.bind("<<IcursorModify>>",
+                    self.icursor_modify))
             except TypeError:
                 pass
         elif self.variable_line_bar_hide.get() == True:
