@@ -9,6 +9,9 @@ from scrollbar import AutoScrollbar
 import os
 import sys
 
+from pygments import lex
+from pygments.lexers import PythonLexer
+
 
 class Notepad:
     root = tk.Tk()
@@ -50,6 +53,7 @@ class Notepad:
     variable_statusbar_hide = tk.BooleanVar()
     variable_line_bar_hide = tk.BooleanVar()
     variable_search_box = tk.BooleanVar()
+    variable_syntax_highligh = tk.BooleanVar()
     
     canvas_line = tk.Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightsteelblue3')
@@ -134,6 +138,9 @@ class Notepad:
             menu=self.statusbar_menu)
         self.customize_menu.add_cascade(label='StatusBars',
             menu=self.s_bars_menu)
+        self.customize_menu.add_checkbutton(label="Highlight syntax",
+            onvalue=1, offvalue=0, variable=self.variable_syntax_highligh,
+            command=self.switch_syntax_highlight)
 
         # StatusBars show-hide option
         self.s_bars_menu.add_checkbutton(label='Statusbar', onvalue=1,
@@ -263,7 +270,9 @@ class Notepad:
         self.repace_match_button = tk.Button(self.search_box_label, bd=1,
             text='Replace all', command=self.replace_match, cursor='arrow')
         self.repace_match_button.grid(column=4, row=0, columnspan=1)
+
         self.dpi_awareness()
+        self.previous_content = self.text_area.get("1.0", tk.END)
 
 
     def search_box(self, event=None):
@@ -650,6 +659,104 @@ class Notepad:
                 ctypes.windll.shcore.SetProcessDpiAwareness(2)
             except (ImportError, OSError):
                 pass
+    
+    def syntax_highlight(self, event):
+        """
+        Highlight syntax after KeyRelease only in selected row.
+
+        Args:
+            row(str) - number of row, where cursor inserted.
+            lines(list) - list of lines
+            text_content(str) - get string inside text widget
+            data(str) - get string from current row of text widget, 
+                with index("row", "row + number of items inside row")
+
+        Source: https://stackoverflow.com/a/32064481,
+        https://www.holadevs.com/pregunta/100576/python-pygments-tkinter
+        """
+        row = self.text_area.index("insert").split(".")[0]
+        text_content = self.text_area.get("1.0", tk.END)
+        lines = text_content.split("\n")
+
+        self.text_area.tag_configure("Token.Literal.String.Single",
+            foreground="green")
+        self.text_area.tag_configure("Token.Literal.String.Double",
+            foreground="green")
+        self.text_area.tag_configure("Token.Literal.Number.Integer",
+            foreground="SlateBlue2")
+        self.text_area.tag_configure("Token.Literal.Number.Float",
+            foreground="SlateBlue2")
+        self.text_area.tag_configure("Token.Name.Builtin",
+            foreground="light salmon")
+        self.text_area.tag_configure("Token.Name.Namespace",
+            foreground="forest green")
+        self.text_area.tag_configure("Token.Operator",
+            foreground="light sea green")
+        self.text_area.tag_configure("Token.Punctuation",
+            foreground="blue")
+        self.text_area.tag_configure("Token.Keyword.Namespace",
+            foreground="dark olive green")
+        self.text_area.tag_configure("Token.Comment.Single",
+            foreground="grey")
+        self.text_area.tag_configure("Token.Comment.Hashbang",
+            foreground="grey")
+        # self.text_area.tag_configure("Token.Literal.String.Doc",
+        #     foreground="grey")
+        # self.text_area.tag_configure("Token.Keyword",
+        #     foreground="brown")
+        # self.text_area.tag_configure("Token.Text", foreground="black")
+
+        if (self.previous_content != text_content):
+            self.text_area.mark_set("range_start", row + ".0")
+            data = self.text_area.get(
+                row + ".0", row + "." +\
+                str(len(lines[int(row) - 1])))
+
+            self.syntax_colorizer(data)
+
+        self.previous_content = self.text_area.get("1.0", tk.END)
+
+    def switch_syntax_highlight(self):
+        """
+        Bind syntax_highlight function to "<KeyRelease>" event, 
+        if check_button is pressed on.
+        If text widget is not empty - colorize it.
+
+        If check_button switched off - remove Key binding and delete tags.
+        
+        """
+        if self.variable_syntax_highligh.get() == True:
+            self.text_area.bind("<KeyRelease>", self.syntax_highlight)
+
+            self.text_area.mark_set("range_start", "1.0")
+            data = self.text_area.get("1.0", "end-1c")
+            self.syntax_colorizer(data)
+
+        elif self.variable_syntax_highligh.get() == False:
+            self.text_area.unbind("<KeyRelease>",
+            self.text_area.bind("<KeyRelease>", self.syntax_highlight))
+            self.text_area.tag_delete(
+                "Token.Literal.String.Single", "Token.Literal.String.Double",
+                "Token.Literal.Number.Integer", "Token.Literal.Number.Float",
+                "Token.Name.Builtin", "Token.Name.Namespace", "Token.Operator",
+                "Token.Punctuation", "Token.Comment.Hashbang",
+                "Token.Keyword.Namespace", "Token.Comment.Single")
+        else:
+            return None
+
+    def syntax_colorizer(self, data):
+        """
+        Colorize market text.
+        Must be provided: 
+            range with .mark_set(markName, index),
+            "data" arg. - content to which range applied 
+            e.g. data = text_widget.get("1.0", "end-1c").
+        """
+        for token, content in lex(data, PythonLexer()):
+            self.text_area.mark_set(
+                "range_end", "range_start + %dc" % len(content))
+            self.text_area.tag_add(str(token), "range_start", "range_end")
+            self.text_area.mark_set("range_start", "range_end")
 
 
 if __name__ == '__main__':
