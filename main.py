@@ -33,8 +33,8 @@ class Notepad:
     popup_menu = tk.Menu(root, tearoff=0)
 
     search_box_label = tk.Label(text_area, highlightthickness=0,
-        bg='SystemWindow')
-    
+        bg='white')
+
     scrollbar_y = AutoScrollbar(text_area, orient='vertical')
     scrollbar_x = AutoScrollbar(text_area, orient='horizontal')
 
@@ -60,7 +60,7 @@ class Notepad:
             
     statusbar = tk.Label(root, text=f"",
         relief=tk.FLAT, anchor='e', highlightthickness=0)
-    line_count_bar = LineEnumerator(width=27, highlightthickness=0)
+    line_count_bar = LineEnumerator(width=32, highlightthickness=0)
 
     def __init__(self):
 
@@ -289,6 +289,7 @@ class Notepad:
             self.variable_search_box.set(True)
             self.search_entry.focus_set()
             self.search_entry.bind('<Return>', self.find_match)
+            tk.Misc.lift(self.search_box_label) # display over other items
         else:
             return None
 
@@ -476,8 +477,8 @@ class Notepad:
     def theme_activate(self):
         """Change background, font color, icursor color"""
         if self.variable_theme.get() == 0:
-            self.text_area.config(bg='SystemWindow', fg='SystemWindowText',
-                insertbackground='SystemWindowText')
+            self.text_area.config(bg='white', fg='black',
+                insertbackground='black')
         elif self.variable_theme.get() == 1:
             self.text_area.config(bg='black', fg='white',
                 insertbackground='white')
