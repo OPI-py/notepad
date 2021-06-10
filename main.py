@@ -186,37 +186,21 @@ class Notepad:
             variable=self.variable_marker, command=self.vertical_line)
 
         # Nested Theme menu
-        self.theme_edit.add_checkbutton(label="Black", onvalue=1, offvalue=0,
+        self.theme_edit.add_checkbutton(label="Azure", onvalue=1,
             variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Light Grey", onvalue=2,
+        self.theme_edit.add_checkbutton(label="Aquamarine", onvalue=2,
             variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Pale Turquoise", onvalue=3,
+        self.theme_edit.add_checkbutton(label="Black", onvalue=3, offvalue=0,
             variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Snow", onvalue=4,
+        self.theme_edit.add_checkbutton(label="Deep Sky blue", onvalue=4,
             variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Azure", onvalue=5,
+        self.theme_edit.add_checkbutton(label="Midnight blue", onvalue=5,
             variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Navajo White", onvalue=6,
+        self.theme_edit.add_checkbutton(label="Dark Slate Gray", onvalue=6,
             variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Lavender", onvalue=7,
+        self.theme_edit.add_checkbutton(label="Cyber Dark", onvalue=7,
             variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Misty Rose", onvalue=8,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Dark Slate Gray", onvalue=9,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Dim Gray", onvalue=10,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Khaki", onvalue=11,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Deep Sky Blue", onvalue=12,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Aquamarine", onvalue=13,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Blue", onvalue=14,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Midnight Blue", onvalue=15,
-            variable=self.variable_theme, command=self.theme_activate)
-        self.theme_edit.add_checkbutton(label="Cyber Dark", onvalue=16,
+        self.theme_edit.add_checkbutton(label="Gray-Gold", onvalue=8,
             variable=self.variable_theme, command=self.theme_activate)
         
         # Help menu
@@ -480,52 +464,28 @@ class Notepad:
             self.text_area.config(bg='white', fg='black',
                 insertbackground='black')
         elif self.variable_theme.get() == 1:
-            self.text_area.config(bg='black', fg='white',
-                insertbackground='white')
-        elif self.variable_theme.get() == 2:
-            self.text_area.config(bg='light grey', fg='black',
-                insertbackground='white')
-        elif self.variable_theme.get() == 3:
-            self.text_area.config(bg='paleturquoise1', fg='black',
-                insertbackground='black')
-        elif self.variable_theme.get() == 4:
-            self.text_area.config(bg='snow', fg='black',
-                insertbackground='black')
-        elif self.variable_theme.get() == 5:
             self.text_area.config(bg='azure', fg='black',
                 insertbackground='black')
-        elif self.variable_theme.get() == 6:
-            self.text_area.config(bg='navajo white', fg='black',
+        elif self.variable_theme.get() == 2:
+            self.text_area.config(bg='aquamarine', fg='black',
                 insertbackground='black')
-        elif self.variable_theme.get() == 7:
-            self.text_area.config(bg='lavender', fg='black',
-                insertbackground='black')
-        elif self.variable_theme.get() == 8:
-            self.text_area.config(bg='misty rose', fg='black',
-                insertbackground='black')
-        elif self.variable_theme.get() == 9:
-            self.text_area.config(bg='dark slate gray', fg='linen',
+        elif self.variable_theme.get() == 3:
+            self.text_area.config(bg='black', fg='white',
                 insertbackground='white')
-        elif self.variable_theme.get() == 10:
-            self.text_area.config(bg='dim gray', fg='ghost white',
-                insertbackground='white')
-        elif self.variable_theme.get() == 11:
-            self.text_area.config(bg='khaki', fg='deepskyblue4',
-                insertbackground='white')
-        elif self.variable_theme.get() == 12:
+        elif self.variable_theme.get() == 4:
             self.text_area.config(bg='deepskyblue4', fg='light cyan',
                 insertbackground='white')
-        elif self.variable_theme.get() == 13:
-            self.text_area.config(bg='aquamarine', fg='red4',
-                insertbackground='black')
-        elif self.variable_theme.get() == 14:
-            self.text_area.config(bg='blue4', fg='white',
-                insertbackground='white')
-        elif self.variable_theme.get() == 15:
+        elif self.variable_theme.get() == 5:
             self.text_area.config(bg='midnight blue', fg='white',
                 insertbackground='white')
-        elif self.variable_theme.get() == 16:
+        elif self.variable_theme.get() == 6:
+            self.text_area.config(bg='dark slate gray', fg='linen',
+                insertbackground='white')
+        elif self.variable_theme.get() == 7:
             self.text_area.config(bg='#1f1f2e', fg='cyan',
+                insertbackground='white')
+        elif self.variable_theme.get() == 8:
+            self.text_area.config(bg='gray17', fg='gold',
                 insertbackground='white')
         else:
             return 'Error'
@@ -684,9 +644,9 @@ class Notepad:
         self.text_area.tag_configure("Token.Literal.String.Double",
             foreground="green")
         self.text_area.tag_configure("Token.Literal.Number.Integer",
-            foreground="SlateBlue2")
+            foreground="tomato")
         self.text_area.tag_configure("Token.Literal.Number.Float",
-            foreground="SlateBlue2")
+            foreground="tomato")
         self.text_area.tag_configure("Token.Name.Builtin",
             foreground="light salmon")
         self.text_area.tag_configure("Token.Name.Namespace",
@@ -694,7 +654,7 @@ class Notepad:
         self.text_area.tag_configure("Token.Operator",
             foreground="light sea green")
         self.text_area.tag_configure("Token.Punctuation",
-            foreground="blue")
+            foreground="SlateBlue2")
         self.text_area.tag_configure("Token.Keyword.Namespace",
             foreground="dark olive green")
         self.text_area.tag_configure("Token.Comment.Single",
