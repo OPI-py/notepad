@@ -248,12 +248,15 @@ class Notepad:
             bd=1, command=self.next_match, cursor='arrow')
         self.find_next.grid(column=2, row=0, columnspan=1)
 
+        self.replace_with_label = tk.Label(self.search_box_label, bd=4,
+            text='Replace with:')
+        self.replace_with_label.grid(column=3, row=0, columnspan=1)
         self.replace_match_entry = tk.Entry(self.search_box_label, bg='gold', bd=4,
             width=29, justify=tk.CENTER)
-        self.replace_match_entry.grid(column=3, row=0, columnspan=1)
+        self.replace_match_entry.grid(column=4, row=0, columnspan=1)
         self.repace_match_button = tk.Button(self.search_box_label, bd=1,
             text='Replace all', command=self.replace_match, cursor='arrow')
-        self.repace_match_button.grid(column=4, row=0, columnspan=1)
+        self.repace_match_button.grid(column=5, row=0, columnspan=1)
 
         self.dpi_awareness()
         self.previous_content = self.text_area.get("1.0", tk.END)
@@ -344,11 +347,29 @@ class Notepad:
                 if not _index:
                     break
 
-                _lastindex = '% s+% dc' % (_index, len(_search))
+                _lastindex = '%s+% dc' % (_index, len(_search))
 
                 self.text_area.delete(_index, _lastindex)
                 self.text_area.insert(_index, _replace)
 
+    def seach_box_background(self):
+        """Change search box background"""
+        if  self.variable_theme.get() == 1:
+            self.search_box_label.config(bg='azure')
+        elif  self.variable_theme.get() == 2:
+            self.search_box_label.config(bg='aquamarine')
+        elif  self.variable_theme.get() == 3:
+            self.search_box_label.config(bg='black')
+        elif  self.variable_theme.get() == 4:
+            self.search_box_label.config(bg='deepskyblue4')
+        elif  self.variable_theme.get() == 5:
+            self.search_box_label.config(bg='midnight blue')
+        elif  self.variable_theme.get() == 6:
+            self.search_box_label.config(bg='dark slate gray')
+        elif  self.variable_theme.get() == 7:
+            self.search_box_label.config(bg='#1f1f2e')
+        elif  self.variable_theme.get() == 8:
+            self.search_box_label.config(bg='gray17')
 
     def popup(self, event):
         """
@@ -460,6 +481,8 @@ class Notepad:
        
     def theme_activate(self):
         """Change background, font color, icursor color"""
+        self.seach_box_background()
+
         if self.variable_theme.get() == 0:
             self.text_area.config(bg='white', fg='black',
                 insertbackground='black')
