@@ -31,6 +31,7 @@ class Notepad:
     s_bars_menu = tk.Menu(customize_menu, tearoff=0)
     help_menu = tk.Menu(menu_bar, tearoff=0)
     popup_menu = tk.Menu(root, tearoff=0)
+    word_wrap_menu = tk.Menu(customize_menu, tearoff=0)
 
     search_box_label = tk.Label(text_area, highlightthickness=0,
         bg='white')
@@ -139,13 +140,16 @@ class Notepad:
             menu=self.statusbar_menu)
         self.customize_menu.add_cascade(label='StatusBars',
             menu=self.s_bars_menu)
-        self.customize_menu.add_checkbutton(label="Word wrap",
-            onvalue=1, offvalue=0, variable=self.variable_word_wrap,
-            command=self.word_wrap)
+        self.customize_menu.add_cascade(label="Word wrap",
+            menu=self.word_wrap_menu)
         self.customize_menu.add_checkbutton(label="Highlight syntax",
             onvalue=1, offvalue=0, variable=self.variable_syntax_highligh,
             command=self.switch_syntax_highlight)
 
+        # Word wrap menu
+        self.word_wrap_menu.add_checkbutton(label="Turn On",
+            onvalue=1, offvalue=0, variable=self.variable_word_wrap,
+            command=self.word_wrap)
         # StatusBars show-hide option
         self.s_bars_menu.add_checkbutton(label='Statusbar', onvalue=1,
             offvalue=0, variable=self.variable_statusbar_hide,
