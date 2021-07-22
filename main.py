@@ -54,6 +54,7 @@ class Notepad:
     variable_line_bar_hide = tk.BooleanVar()
     variable_search_box = tk.BooleanVar()
     variable_syntax_highligh = tk.BooleanVar()
+    variable_word_wrap = tk.BooleanVar()
     
     canvas_line = tk.Canvas(text_area, width=1, height=Height,
             highlightthickness=0, bg='lightsteelblue3')
@@ -138,6 +139,9 @@ class Notepad:
             menu=self.statusbar_menu)
         self.customize_menu.add_cascade(label='StatusBars',
             menu=self.s_bars_menu)
+        self.customize_menu.add_checkbutton(label="Word wrap",
+            onvalue=1, offvalue=0, variable=self.variable_word_wrap,
+            command=self.word_wrap)
         self.customize_menu.add_checkbutton(label="Highlight syntax",
             onvalue=1, offvalue=0, variable=self.variable_syntax_highligh,
             command=self.switch_syntax_highlight)
@@ -255,7 +259,7 @@ class Notepad:
             width=29, justify=tk.CENTER)
         self.replace_match_entry.grid(column=4, row=0, columnspan=1)
         self.repace_match_button = tk.Button(self.search_box_label, bd=1,
-            text='Replace all', command=self.replace_match, cursor='arrow')
+            text='Replace', command=self.replace_match, cursor='arrow')
         self.repace_match_button.grid(column=5, row=0, columnspan=1)
 
         self.dpi_awareness()
@@ -742,6 +746,12 @@ class Notepad:
             self.text_area.tag_add(str(token), "range_start", "range_end")
             self.text_area.mark_set("range_start", "range_end")
 
+
+    def word_wrap(self):
+        if self.variable_word_wrap.get() == 0:
+            self.text_area.configure(wrap="none")
+        else:
+            self.text_area.configure(wrap="word")
 
 if __name__ == '__main__':
     notepad = Notepad()
