@@ -65,7 +65,9 @@ class Notepad:
     line_count_bar = LineEnumerator(width=32, highlightthickness=0)
 
     def __init__(self):
-
+        
+        self.os_platform = sys.platform
+        
         self.root.title("Untitled")
         # Center the window
         screen_width = self.root.winfo_screenwidth() 
@@ -230,7 +232,7 @@ class Notepad:
 
         # Button bind
         self.text_area.bind('<Tab>', self.tab)
-        self.text_area.bind('<Shift-Tab>', self.shift_tab)
+        self.shift_tab_bind()
         self.text_area.bind('<ButtonRelease-3>', self.popup)
         self.text_area.bind('<Control-r>', self.redo)
         self.text_area.bind('<Control-z>', self.undo)
@@ -268,7 +270,14 @@ class Notepad:
 
         self.dpi_awareness()
         self.previous_content = self.text_area.get("1.0", tk.END)
-
+        
+    def shift_tab_bind(self):
+        if self.os_platform == "win32":
+            self.text_area.bind('<Shift-Tab>', self.shift_tab)
+        elif self.os_platform == "linux":
+            self.text_area.bind('<Shift-ISO_Left_Tab>', self.shift_tab)
+        else:
+            return None
 
     def search_box(self, event=None):
         """Make Search box appear inside text area"""
@@ -644,7 +653,7 @@ class Notepad:
 
     def dpi_awareness(self):
         """Set DPI Awareness  (Windows 10 and 8)"""
-        if sys.platform == 'win32':
+        if self.os_platform == 'win32':
             try:
                 import ctypes
 
@@ -760,3 +769,6 @@ class Notepad:
 if __name__ == '__main__':
     notepad = Notepad()
     notepad.run()
+
+
+
